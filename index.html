@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>剑桥三级·小勇士闯关</title>
+<style>
+/* ===== 字体回退：离线也能好看 ===== */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap');
+
+:root {
+–yellow: #FFD166;
+–green: #06D6A0;
+–blue: #118AB2;
+–red: #EF476F;
+–purple: #6C5CE7;
+–orange: #FF9F43;
+–pink: #FD79A8;
+–card-radius: 20px;
+–btn-radius: 40px;
+–shadow: 0 8px 32px rgba(0,0,0,0.22);
+}
+
+- {
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  }
+
+html {
+height: 100%;
+height: -webkit-fill-available;
+}
+
+body {
+width: 100%;
+height: 100%;
+height: -webkit-fill-available;
+overflow: hidden;
+font-family: ‘Nunito’, ‘PingFang SC’, ‘Helvetica Neue’, Arial, sans-serif;
+background: #1a1a2e;
+color: #fff;
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+touch-action: manipulation;
+}
+
+/* ===== SCREENS ===== */
+.screen {
+position: absolute;
+width: 100%; height: 100%;
+top: 0; left: 0;
+display: none;
+flex-direction: column;
+overflow: hidden;
+}
+.screen.active { display: flex; }
+
+/* ===== SPLASH ===== */
+#screen-splash {
+background: linear-gradient(160deg, #0f0c29, #302b63, #24243e);
+align-items: center;
+justify-content: center;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+.splash-stars { position: absolute; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.star {
+position: absolute; border-radius: 50%; background: #fff;
+animation: twinkle 2s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+0% { opacity: 0.15; transform: scale(0.8); }
+100% { opacity: 1; transform: scale(1.2); }
+}
+.splash-content {
+position: relative; z-index: 10;
+display: flex; flex-direction: column; align-items: center;
+gap: 18px; padding: 30px 24px 40px;
+max-width: 500px; width: 100%;
+}
+.splash-castle {
+font-size: 70px;
+animation: float 3s ease-in-out infinite;
+filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+}
+@keyframes float {
+0%,100% { transform: translateY(0); }
+50% { transform: translateY(-10px); }
+}
+.splash-title {
+font-family: ‘Fredoka One’, ‘PingFang SC’, cursive;
+font-size: clamp(28px, 6vw, 44px);
+text-align: center; line-height: 1.2;
+background: linear-gradient(135deg, #FFD166, #EF476F, #06D6A0);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent;
+background-clip: text;
+}
+.splash-sub { font-size: 14px; color: rgba(255,255,255,0.6); text-align: center; }
+.input-label { font-size: 16px; font-weight: 800; color: var(–yellow); text-align: center; }
+.splash-input {
+background: rgba(255,255,255,0.1);
+border: 2px solid rgba(255,255,255,0.3);
+border-radius: var(–btn-radius);
+padding: 13px 22px;
+font-size: 20px; font-family: inherit; font-weight: 800;
+color: #fff; text-align: center; outline: none; width: 100%;
+-webkit-appearance: none; appearance: none;
+}
+.splash-input:focus { border-color: var(–yellow); background: rgba(255,209,102,0.12); }
+.splash-input::placeholder { color: rgba(255,255,255,0.35); }
+.avatar-grid { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.avatar-btn {
+width: 62px; height: 62px; border-radius: 50%;
+background: rgba(255,255,255,0.08); border: 3px solid rgba(255,255,255,0.2);
+font-size: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+transition: transform 0.15s;
+}
+.avatar-btn.selected {
+border-color: var(–yellow); background: rgba(255,209,102,0.2);
+transform: scale(1.12); box-shadow: 0 0 0 4px rgba(255,209,102,0.25);
+}
+.btn-primary {
+background: linear-gradient(135deg, #FFD166, #FF9F43);
+color: #1a1a2e; font-family: ‘Fredoka One’, cursive;
+font-size: 24px; border: none; border-radius: var(–btn-radius);
+padding: 15px 36px; cursor: pointer; width: 100%;
+box-shadow: 0 6px 20px rgba(255,209,102,0.4);
+-webkit-appearance: none; appearance: none;
+}
+
+/* ===== TOP BAR ===== */
+.top-bar {
+display: flex; align-items: center;
+padding: 10px 16px;
+background: rgba(0,0,0,0.3);
+-webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+gap: 10px; flex-shrink: 0; min-height: 58px;
+}
+.top-bar-avatar {
+width: 42px; height: 42px; border-radius: 50%;
+background: rgba(255,255,255,0.12); border: 2px solid var(–yellow);
+font-size: 22px; display: flex; align-items: center; justify-content: center;
+cursor: pointer; flex-shrink: 0;
+}
+.top-bar-name { font-weight: 900; font-size: 17px; color: var(–yellow); flex: 1; }
+.top-bar-actions { display: flex; gap: 8px; }
+.icon-btn {
+width: 42px; height: 42px; border-radius: 50%;
+background: rgba(255,255,255,0.1); border: none;
+font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+color: #fff; -webkit-appearance: none; appearance: none;
+}
+
+/* ===== MAP ===== */
+#screen-map { background: linear-gradient(160deg, #0f0c29, #302b63, #24243e); }
+.map-title {
+font-family: ‘Fredoka One’, cursive; font-size: 22px; text-align: center;
+padding: 8px 0 2px;
+background: linear-gradient(90deg, #FFD166, #06D6A0);
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.map-scroll {
+flex: 1; overflow-y: auto; overflow-x: hidden;
+padding: 12px 12px 76px;
+-webkit-overflow-scrolling: touch;
+}
+.islands-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+gap: 12px;
+}
+.island-card {
+border-radius: var(–card-radius); padding: 16px;
+cursor: pointer; position: relative; overflow: hidden;
+min-height: 140px; display: flex; flex-direction: column;
+box-shadow: var(–shadow); transition: transform 0.12s;
+}
+.island-card.locked { filter: grayscale(0.65); opacity: 0.7; }
+.island-icon { font-size: 48px; margin-bottom: 6px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+.island-name { font-family: ‘Fredoka One’, cursive; font-size: 19px; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+.island-name-en { font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 700; margin-bottom: 6px; }
+.island-stars { margin-top: auto; display: flex; gap: 2px; }
+.island-stars .st { color: rgba(255,255,255,0.25); font-size: 13px; }
+.island-stars .st.lit { color: #FFD700; text-shadow: 0 0 6px #FFD700; }
+.island-lock { position: absolute; top: 10px; right: 10px; font-size: 22px; opacity: 0.75; }
+.island-boss-badge {
+position: absolute; top: 8px; right: 8px;
+background: #FF6B6B; color: #fff; font-size: 10px; font-weight: 900;
+padding: 2px 7px; border-radius: 20px;
+}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav {
+display: flex; background: rgba(0,0,0,0.55);
+-webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+border-top: 1px solid rgba(255,255,255,0.08);
+position: absolute; bottom: 0; left: 0; right: 0;
+height: 64px; padding-bottom: env(safe-area-inset-bottom, 0px);
+z-index: 100;
+}
+.nav-btn {
+flex: 1; display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+cursor: pointer; font-size: 22px; gap: 1px;
+border: none; background: none; color: rgba(255,255,255,0.45);
+font-family: inherit; transition: color 0.15s;
+-webkit-appearance: none; appearance: none;
+}
+.nav-btn .nlabel { font-size: 10px; font-weight: 800; }
+.nav-btn.active { color: var(–yellow); }
+
+/* ===== WORD LIST ===== */
+#screen-words { background: linear-gradient(160deg, #1a1a2e, #16213e); }
+.screen-header {
+display: flex; align-items: center;
+padding: 10px 14px; gap: 10px;
+background: rgba(0,0,0,0.2); flex-shrink: 0;
+}
+.back-btn {
+font-size: 22px; cursor: pointer;
+width: 42px; height: 42px; border-radius: 50%;
+background: rgba(255,255,255,0.1); border: none; color: #fff;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0; -webkit-appearance: none; appearance: none;
+}
+.screen-title { font-family: ‘Fredoka One’, cursive; font-size: 22px; }
+.words-grid {
+display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+gap: 10px; padding: 12px 12px 0;
+overflow-y: auto; flex: 1;
+-webkit-overflow-scrolling: touch;
+}
+.word-chest {
+border-radius: 18px; background: rgba(255,255,255,0.07);
+border: 2px solid rgba(255,255,255,0.1);
+padding: 14px 8px;
+display: flex; flex-direction: column; align-items: center;
+gap: 6px; cursor: pointer; min-height: 125px;
+}
+.word-chest.mastered { background: rgba(6,214,160,0.13); border-color: rgba(6,214,160,0.38); }
+.word-chest.learning { background: rgba(255,209,102,0.1); border-color: rgba(255,209,102,0.32); }
+.chest-icon { font-size: 38px; }
+.chest-word { font-size: 13px; font-weight: 900; text-align: center; word-break: break-all; }
+.chest-meaning { font-size: 11px; color: rgba(255,255,255,0.55); }
+.chest-stars { display: flex; gap: 2px; font-size: 11px; }
+.chest-stars .s { color: rgba(255,255,255,0.2); }
+.chest-stars .s.on { color: #FFD700; }
+.boss-btn {
+margin: 10px 14px 76px;
+background: linear-gradient(135deg, #FF6B6B, #EF476F);
+border: none; border-radius: var(–card-radius);
+padding: 16px; color: #fff;
+font-family: ‘Fredoka One’, cursive; font-size: 20px;
+cursor: pointer; display: flex; align-items: center; justify-content: center;
+gap: 8px; box-shadow: 0 6px 20px rgba(239,71,111,0.38);
+flex-shrink: 0; -webkit-appearance: none; appearance: none;
+}
+
+/* ===== LEARN SCREEN ===== */
+#screen-learn { background: linear-gradient(160deg, #0d1b2a, #1b263b, #415a77); }
+.learn-topbar {
+display: flex; align-items: center;
+padding: 8px 14px; gap: 10px;
+background: rgba(0,0,0,0.2); flex-shrink: 0;
+min-height: 54px;
+}
+.prog-dots { display: flex; gap: 6px; flex: 1; }
+.prog-dot {
+height: 6px; flex: 1; border-radius: 3px;
+background: rgba(255,255,255,0.15); transition: background 0.3s;
+}
+.prog-dot.done { background: var(–green); }
+.prog-dot.active { background: var(–yellow); }
+.btn-skip {
+background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15);
+border-radius: var(–btn-radius); padding: 8px 16px;
+font-family: inherit; font-size: 14px; font-weight: 800;
+color: rgba(255,255,255,0.6); cursor: pointer;
+-webkit-appearance: none; appearance: none; white-space: nowrap;
+}
+
+.learn-step {
+flex: 1; display: none; flex-direction: column;
+align-items: center; padding: 16px 16px 12px; gap: 12px;
+overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.learn-step.active { display: flex; }
+
+.word-image-big {
+font-size: clamp(80px, 20vw, 120px);
+text-align: center; line-height: 1;
+animation: pop-in 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+cursor: pointer;
+}
+@keyframes pop-in {
+0% { transform: scale(0.4); opacity: 0; }
+100% { transform: scale(1); opacity: 1; }
+}
+.word-display {
+font-family: ‘Fredoka One’, cursive;
+font-size: clamp(32px, 8vw, 52px);
+text-align: center; letter-spacing: 3px;
+text-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.word-meaning { font-size: 20px; color: var(–yellow); font-weight: 800; text-align: center; }
+.word-example {
+font-size: 16px; color: rgba(255,255,255,0.75);
+text-align: center; line-height: 1.6;
+background: rgba(255,255,255,0.07); border-radius: 14px;
+padding: 12px 16px; max-width: 440px; width: 100%;
+}
+.word-example strong { color: var(–green); font-weight: 900; }
+.speak-btn {
+background: linear-gradient(135deg, #118AB2, #06D6A0);
+border: none; border-radius: 50%;
+width: 58px; height: 58px; font-size: 26px;
+cursor: pointer; display: flex; align-items: center; justify-content: center;
+box-shadow: 0 6px 20px rgba(6,214,160,0.38);
+flex-shrink: 0; -webkit-appearance: none; appearance: none;
+}
+.step-nav { display: flex; gap: 10px; margin-top: auto; width: 100%; max-width: 480px; }
+.btn-next {
+flex: 1; background: linear-gradient(135deg, #06D6A0, #118AB2);
+border: none; border-radius: var(–btn-radius);
+padding: 15px; font-family: ‘Fredoka One’, cursive;
+font-size: 20px; color: #fff; cursor: pointer;
+box-shadow: 0 6px 20px rgba(6,214,160,0.32);
+-webkit-appearance: none; appearance: none;
+}
+
+/* ===== LISTEN STEP ===== */
+.listen-prompt { font-family: ‘Fredoka One’, cursive; font-size: 22px; text-align: center; color: var(–yellow); }
+.choices-grid {
+display: grid; grid-template-columns: 1fr 1fr;
+gap: 10px; width: 100%; max-width: 460px;
+}
+.choice-card {
+background: rgba(255,255,255,0.09); border: 3px solid rgba(255,255,255,0.14);
+border-radius: 18px; padding: 14px;
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+cursor: pointer; min-height: 110px; gap: 6px;
+}
+.choice-card .ci { font-size: clamp(48px, 12vw, 66px); line-height: 1; }
+.choice-label { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.8); }
+.choice-card.correct-flash {
+border-color: var(–green); background: rgba(6,214,160,0.18);
+animation: cfx 0.5s ease;
+}
+@keyframes cfx {
+0%{transform:scale(1)} 40%{transform:scale(1.08)} 100%{transform:scale(1)}
+}
+.choice-card.wrong-flash {
+border-color: rgba(239,71,111,0.5); background: rgba(239,71,111,0.09);
+opacity: 0.5; animation: wfx 0.4s ease;
+}
+@keyframes wfx {
+0%{transform:translateX(0)} 20%{transform:translateX(-8px)}
+60%{transform:translateX(8px)} 100%{transform:translateX(0)}
+}
+.try-hint { font-size: 16px; color: var(–orange); font-weight: 800; text-align: center; min-height: 24px; }
+
+/* ===== SPELL STEP ===== */
+.spell-target { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 6px 0; }
+.spell-slot {
+width: clamp(42px, 10vw, 54px); height: clamp(46px, 11vw, 58px);
+border-radius: 10px; border: 3px dashed rgba(255,255,255,0.28);
+background: rgba(255,255,255,0.04);
+display: flex; align-items: center; justify-content: center;
+font-family: ‘Fredoka One’, cursive; font-size: clamp(20px, 5vw, 28px);
+color: #fff; transition: all 0.18s; cursor: pointer;
+}
+.spell-slot.filled { border-style: solid; border-color: var(–blue); background: rgba(17,138,178,0.18); }
+.spell-slot.correct-all { border-color: var(–green); background: rgba(6,214,160,0.22); animation: slot-ok 0.5s ease forwards; }
+@keyframes slot-ok { 0%{transform:scale(1)} 50%{transform:scale(1.14)} 100%{transform:scale(1)} }
+.spell-tiles {
+display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+padding: 12px; background: rgba(255,255,255,0.05); border-radius: 14px;
+min-height: 76px; width: 100%; max-width: 460px;
+}
+.letter-tile {
+width: clamp(42px, 10vw, 54px); height: clamp(46px, 11vw, 58px);
+border-radius: 10px;
+background: linear-gradient(135deg, #FFD166, #FF9F43);
+color: #1a1a2e; font-family: ‘Fredoka One’, cursive;
+font-size: clamp(20px, 5vw, 28px);
+display: flex; align-items: center; justify-content: center;
+cursor: pointer; box-shadow: 0 4px 12px rgba(255,209,102,0.28);
+flex-shrink: 0; position: relative; transition: opacity 0.15s;
+-webkit-user-select: none; user-select: none;
+}
+.letter-tile.used { opacity: 0.2; pointer-events: none; }
+
+/* ===== CELEBRATION ===== */
+.celebration-overlay {
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0,0,0,0.72); z-index: 500;
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+gap: 18px; animation: fadein 0.3s ease;
+}
+@keyframes fadein { from{opacity:0} to{opacity:1} }
+.celeb-emoji { font-size: 90px; animation: celebrate 0.6s cubic-bezier(0.175,0.885,0.32,1.275); }
+@keyframes celebrate {
+0%{transform:scale(0) rotate(-20deg)} 70%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1) rotate(0)}
+}
+.celeb-text { font-family: ‘Fredoka One’, cursive; font-size: 32px; text-align: center; }
+.celeb-coins { position: absolute; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.coin { position: absolute; font-size: 26px; animation: coinfall 1s ease-in forwards; }
+@keyframes coinfall { 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+.btn-continue {
+background: linear-gradient(135deg, #FFD166, #FF9F43);
+border: none; border-radius: var(–btn-radius);
+padding: 15px 44px; font-family: ‘Fredoka One’, cursive;
+font-size: 22px; color: #1a1a2e; cursor: pointer;
+box-shadow: 0 6px 24px rgba(255,209,102,0.4);
+-webkit-appearance: none; appearance: none;
+}
+
+/* ===== MONSTERS ===== */
+#screen-monsters { background: linear-gradient(160deg, #2d1b69, #11998e); }
+.monsters-grid {
+display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+gap: 10px; padding: 12px 12px 76px;
+overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch;
+}
+.monster-card {
+background: rgba(0,0,0,0.32); border: 2px solid rgba(255,255,255,0.13);
+border-radius: 18px; padding: 14px;
+display: flex; flex-direction: column; align-items: center;
+gap: 7px; cursor: pointer; text-align: center;
+}
+.monster-emoji { font-size: 48px; animation: mbounce 2s ease infinite; }
+@keyframes mbounce {
+0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-6px) rotate(3deg)}
+}
+.monster-word { font-weight: 900; font-size: 15px; }
+.monster-errors { font-size: 11px; color: #FF6B6B; font-weight: 800; }
+.empty-monsters {
+flex: 1; display: flex; flex-direction: column;
+align-items: center; justify-content: center; gap: 14px; opacity: 0.65;
+}
+
+/* ===== BOSS ===== */
+#screen-boss { background: radial-gradient(ellipse at center, #4a0000, #1a0000); }
+.boss-header { text-align: center; padding: 12px 14px 4px; flex-shrink: 0; }
+.boss-title {
+font-family: ‘Fredoka One’, cursive; font-size: 28px;
+color: #FF6B6B; text-shadow: 0 0 20px rgba(255,107,107,0.5);
+}
+.boss-timer { font-family: ‘Fredoka One’, cursive; font-size: 20px; color: var(–yellow); }
+.boss-hp { display: flex; gap: 6px; justify-content: center; margin-top: 6px; }
+.hp-heart { font-size: 22px; transition: all 0.3s; }
+.hp-heart.lost { filter: grayscale(1); opacity: 0.28; }
+.boss-monster {
+text-align: center; font-size: clamp(70px, 15vw, 100px);
+animation: bossanim 2s ease-in-out infinite;
+filter: drop-shadow(0 0 30px rgba(255,0,0,0.4));
+flex-shrink: 0; padding: 4px 0;
+}
+@keyframes bossanim {
+0%,100%{transform:scale(1) rotate(-3deg)} 50%{transform:scale(1.05) rotate(3deg)}
+}
+.boss-score { text-align: center; font-size: 16px; padding: 4px; flex-shrink: 0; }
+.boss-score span { color: var(–yellow); font-weight: 900; font-size: 20px; }
+.boss-question {
+background: rgba(255,255,255,0.08); border-radius: var(–card-radius);
+padding: 16px 14px; margin: 0 12px;
+font-size: 18px; font-weight: 800; text-align: center; flex-shrink: 0;
+}
+.boss-choices {
+display: grid; grid-template-columns: 1fr 1fr;
+gap: 8px; padding: 10px 12px; flex-shrink: 0;
+}
+.boss-choice {
+background: rgba(255,255,255,0.09); border: 2px solid rgba(255,255,255,0.18);
+border-radius: 14px; padding: 10px;
+font-size: clamp(40px,10vw,54px);
+display: flex; flex-direction: column; align-items: center;
+gap: 4px; cursor: pointer; min-height: 92px;
+}
+.boss-spell-area {
+display: flex; flex-direction: column; align-items: center;
+gap: 10px; padding: 0 12px; flex: 1; justify-content: center;
+}
+.boss-result {
+flex: 1; display: flex; flex-direction: column;
+align-items: center; justify-content: center; gap: 16px; padding: 20px;
+}
+.boss-result-emoji { font-size: 90px; animation: celebrate 0.6s cubic-bezier(0.175,0.885,0.32,1.275); }
+.boss-result-title { font-family: ‘Fredoka One’, cursive; font-size: 36px; text-align: center; }
+.boss-result-desc { font-size: 18px; text-align: center; color: rgba(255,255,255,0.8); }
+.boss-result-reward {
+background: rgba(255,215,0,0.14); border: 2px solid rgba(255,215,0,0.38);
+border-radius: 18px; padding: 14px 22px; font-size: 26px; text-align: center;
+}
+.boss-btn-row { display: flex; gap: 10px; width: 100%; max-width: 400px; }
+
+/* ===== DRESS UP ===== */
+#screen-dressup { background: linear-gradient(160deg, #1a1a2e, #16213e); }
+.dressup-preview { text-align: center; padding: 20px; position: relative; flex-shrink: 0; }
+.dressup-character { position: relative; display: inline-block; }
+.dressup-hat { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); font-size: 56px; }
+.dressup-acc { position: absolute; bottom: -10px; right: -18px; font-size: 38px; }
+.dressup-grid {
+display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+gap: 10px; padding: 12px; overflow-y: auto; flex: 1;
+-webkit-overflow-scrolling: touch;
+}
+.deco-item {
+background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.13);
+border-radius: 14px; padding: 12px; text-align: center;
+cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.deco-item.owned.equipped { border-color: var(–yellow); background: rgba(255,209,102,0.13); }
+.deco-item.locked { opacity: 0.38; cursor: default; }
+.deco-icon { font-size: 38px; }
+.deco-name { font-size: 11px; font-weight: 800; }
+.deco-badge { font-size: 9px; background: var(–green); color: #1a1a2e; padding: 2px 5px; border-radius: 8px; font-weight: 900; }
+.deco-badge.locked-badge { background: rgba(255,255,255,0.18); color: #fff; }
+
+/* ===== REPORT ===== */
+#screen-report { background: #1a1a2e; }
+.report-content { overflow-y: auto; flex: 1; padding: 12px; -webkit-overflow-scrolling: touch; }
+.report-card { background: rgba(255,255,255,0.06); border-radius: var(–card-radius); padding: 18px; margin-bottom: 14px; }
+.report-card-title { font-weight: 900; font-size: 16px; color: var(–yellow); margin-bottom: 10px; }
+.stat-row {
+display: flex; justify-content: space-between; align-items: center;
+padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 15px;
+}
+.stat-row:last-child { border: none; }
+.stat-val { font-weight: 900; color: var(–green); font-size: 17px; }
+.prog-bar-bg { background: rgba(255,255,255,0.1); border-radius: 8px; height: 10px; overflow: hidden; margin-top: 8px; }
+.prog-bar-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(–green), var(–blue)); transition: width 0.8s ease; }
+.daily-bars { display: flex; gap: 6px; align-items: flex-end; height: 72px; padding-top: 6px; }
+.daily-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; }
+.daily-bar { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+.daily-bar-fill { width: 100%; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, var(–blue), var(–green)); min-height: 3px; transition: height 0.8s ease; }
+.daily-label { font-size: 9px; color: rgba(255,255,255,0.45); font-weight: 800; }
+.error-word-item {
+display: flex; justify-content: space-between; align-items: center;
+padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px;
+}
+.error-count { color: #FF6B6B; font-weight: 900; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0,0,0,0.75); z-index: 900;
+display: flex; align-items: center; justify-content: center;
+animation: fadein 0.2s ease;
+}
+.modal-box {
+background: linear-gradient(160deg, #1a1a2e, #16213e);
+border: 2px solid rgba(255,255,255,0.13);
+border-radius: var(–card-radius); padding: 28px;
+max-width: 340px; width: 88%;
+text-align: center; display: flex; flex-direction: column; gap: 14px;
+animation: pop-in 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.modal-title { font-family: ‘Fredoka One’, cursive; font-size: 26px; }
+.modal-input {
+background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);
+border-radius: var(–btn-radius); padding: 11px 18px;
+font-size: 24px; font-family: ‘Fredoka One’, cursive; color: #fff;
+text-align: center; letter-spacing: 8px; outline: none; width: 100%;
+-webkit-appearance: none; appearance: none;
+}
+.modal-btn-row { display: flex; gap: 8px; }
+.btn-cancel {
+flex: 1; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.14);
+border-radius: var(–btn-radius); padding: 11px;
+font-family: inherit; font-size: 15px; font-weight: 900; color: rgba(255,255,255,0.65); cursor: pointer;
+-webkit-appearance: none; appearance: none;
+}
+.btn-confirm {
+flex: 2; background: linear-gradient(135deg, #FFD166, #FF9F43);
+border: none; border-radius: var(–btn-radius); padding: 11px;
+font-family: ‘Fredoka One’, cursive; font-size: 17px; color: #1a1a2e; cursor: pointer;
+-webkit-appearance: none; appearance: none;
+}
+
+/* ===== UTILS ===== */
+.hidden { display: none !important; }
+.ghost-tile {
+position: fixed; z-index: 9999; pointer-events: none;
+border-radius: 10px; background: linear-gradient(135deg, #FFD166, #FF9F43);
+color: #1a1a2e; font-family: ‘Fredoka One’, cursive;
+display: flex; align-items: center; justify-content: center;
+box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+transform: scale(1.15) rotate(5deg);
+transition: none;
+}
+#toast {
+position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
+background: rgba(0,0,0,0.85); color: #fff; padding: 11px 22px;
+border-radius: var(–btn-radius); font-size: 15px; font-weight: 800;
+z-index: 9998; border: 1px solid rgba(255,255,255,0.13);
+white-space: nowrap; transition: opacity 0.4s;
+-webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 2px; }
+</style>
+
+</head>
+<body>
+
+<!-- ==================== SPLASH ==================== -->
+
+<div id="screen-splash" class="screen active">
+  <div class="splash-stars" id="stars-container"></div>
+  <div class="splash-content">
+    <div class="splash-castle">🏰</div>
+    <div class="splash-title">剑桥三级<br>小勇士闯关</div>
+    <div class="splash-sub">Cambridge Flyers · A2 Vocabulary Adventure</div>
+    <div class="input-label">✏️ 输入你的名字</div>
+    <input type="text" id="nickname-input" class="splash-input" placeholder="小勇士" maxlength="10" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div class="input-label">🎨 选择头像</div>
+    <div class="avatar-grid" id="avatar-grid"></div>
+    <button class="btn-primary" id="btn-start">⚔️ 开始冒险！</button>
+  </div>
+</div>
+
+<!-- ==================== MAP ==================== -->
+
+<div id="screen-map" class="screen">
+  <div class="top-bar">
+    <div class="top-bar-avatar" id="top-avatar">🦊</div>
+    <div class="top-bar-name" id="top-name">小勇士</div>
+    <div class="top-bar-actions">
+      <button class="icon-btn" id="mute-btn">🔊</button>
+      <button class="icon-btn" id="settings-btn">⚙️</button>
+    </div>
+  </div>
+  <div class="map-title">🗺️ 单词大冒险 · 14座岛屿等你探索！</div>
+  <div class="map-scroll"><div class="islands-grid" id="islands-grid"></div></div>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-map">
+      <span>🗺️</span><span class="nlabel">地图</span>
+    </button>
+    <button class="nav-btn" id="nav-monsters">
+      <span>👾</span><span class="nlabel">错词本</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ==================== WORD LIST ==================== -->
+
+<div id="screen-words" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" id="back-from-words">←</button>
+    <div class="screen-title" id="words-theme-title">动物岛</div>
+  </div>
+  <div class="words-grid" id="words-grid"></div>
+  <button class="boss-btn hidden" id="boss-btn">⚔️ 挑战 Boss！准备好了吗？</button>
+</div>
+
+<!-- ==================== LEARN ==================== -->
+
+<div id="screen-learn" class="screen">
+  <div class="learn-topbar">
+    <button class="back-btn" id="back-from-learn">←</button>
+    <div class="prog-dots">
+      <div class="prog-dot active" id="dot0"></div>
+      <div class="prog-dot" id="dot1"></div>
+      <div class="prog-dot" id="dot2"></div>
+    </div>
+    <button class="btn-skip" id="skip-btn">跳过</button>
+  </div>
+
+  <!-- Step 0: Explore -->
+
+  <div id="step-explore" class="learn-step active">
+    <div class="word-image-big" id="explore-image">🐘</div>
+    <div class="word-display" id="explore-word">elephant</div>
+    <div class="word-meaning" id="explore-meaning">大象</div>
+    <div class="word-example" id="explore-example"></div>
+    <button class="speak-btn" id="explore-speak">🔊</button>
+    <div class="step-nav">
+      <button class="btn-next" id="btn-to-listen">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- Step 1: Listen -->
+
+  <div id="step-listen" class="learn-step">
+    <div class="listen-prompt">🎧 听单词，点图片！</div>
+    <button class="speak-btn" id="listen-speak">🔊</button>
+    <div class="choices-grid" id="choices-grid"></div>
+    <div class="try-hint" id="listen-hint"></div>
+  </div>
+
+  <!-- Step 2: Spell -->
+
+  <div id="step-spell" class="learn-step">
+    <div id="spell-image" style="font-size:clamp(70px,18vw,100px);text-align:center;line-height:1">🐘</div>
+    <button class="speak-btn" id="spell-speak">🔊</button>
+    <div class="spell-target" id="spell-slots"></div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.45);font-weight:700;text-align:center">点击字母填入格子 · 再点格子可取回</div>
+    <div class="spell-tiles" id="spell-tiles"></div>
+  </div>
+</div>
+
+<!-- ==================== CELEBRATION ==================== -->
+
+<div id="celebration-overlay" class="celebration-overlay hidden">
+  <div class="celeb-coins" id="celeb-coins"></div>
+  <div class="celeb-emoji">🌟</div>
+  <div class="celeb-text" id="celeb-text">太棒了！</div>
+  <button class="btn-continue" id="btn-continue">继续 →</button>
+</div>
+
+<!-- ==================== MONSTERS ==================== -->
+
+<div id="screen-monsters" class="screen">
+  <div class="screen-header">
+    <div class="screen-title">👾 错词怪兽收集册</div>
+  </div>
+  <div class="monsters-grid" id="monsters-grid"></div>
+  <div class="empty-monsters hidden" id="monsters-empty">
+    <div style="font-size:72px">🎉</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:26px;text-align:center">没有错词！太棒了！</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.55);text-align:center">继续努力，保持完美！</div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" id="nav-map2"><span>🗺️</span><span class="nlabel">地图</span></button>
+    <button class="nav-btn active" id="nav-monsters2"><span>👾</span><span class="nlabel">错词本</span></button>
+  </nav>
+</div>
+
+<!-- ==================== BOSS ==================== -->
+
+<div id="screen-boss" class="screen">
+  <div class="boss-header">
+    <button class="back-btn" id="back-from-boss" style="margin-bottom:4px">←</button>
+    <div class="boss-title">⚔️ Boss 大战！</div>
+    <div class="boss-timer" id="boss-timer">⏱ 3:00</div>
+    <div class="boss-hp" id="boss-hp"></div>
+  </div>
+  <div class="boss-monster">🐲</div>
+  <div class="boss-score" id="boss-score">得分 <span>0</span> / 5</div>
+  <div id="boss-q-area">
+    <div class="boss-question" id="boss-q-text">加载中...</div>
+    <div class="boss-choices" id="boss-choices"></div>
+    <div class="boss-spell-area hidden" id="boss-spell-area">
+      <div id="boss-spell-img" style="font-size:clamp(60px,14vw,90px);text-align:center">🐘</div>
+      <div class="spell-target" id="boss-spell-slots"></div>
+      <div class="spell-tiles" id="boss-spell-tiles" style="max-width:460px"></div>
+    </div>
+  </div>
+  <div class="boss-result hidden" id="boss-result">
+    <div class="boss-result-emoji" id="boss-result-emoji">🏆</div>
+    <div class="boss-result-title" id="boss-result-title">你赢了！</div>
+    <div class="boss-result-desc" id="boss-result-desc"></div>
+    <div class="boss-result-reward hidden" id="boss-result-reward"></div>
+    <div class="boss-btn-row">
+      <button class="btn-next" id="boss-retry" style="flex:1">🔄 再战</button>
+      <button class="btn-next" id="boss-exit" style="flex:1;background:linear-gradient(135deg,#6C5CE7,#A29BFE)">🏠 退出</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DRESS UP ==================== -->
+
+<div id="screen-dressup" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" id="back-from-dressup">←</button>
+    <div class="screen-title">🎨 角色装扮</div>
+  </div>
+  <div class="dressup-preview">
+    <div class="dressup-character">
+      <div class="dressup-hat" id="du-hat"></div>
+      <div id="du-base" style="font-size:88px">🦊</div>
+      <div class="dressup-acc" id="du-acc"></div>
+    </div>
+  </div>
+  <div class="dressup-grid" id="dressup-grid"></div>
+</div>
+
+<!-- ==================== REPORT ==================== -->
+
+<div id="screen-report" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" id="back-from-report">←</button>
+    <div class="screen-title">📊 学习报告</div>
+  </div>
+  <div class="report-content">
+    <div class="report-card">
+      <div class="report-card-title">👦 <span id="rpt-name">小勇士</span> 的学习概览</div>
+      <div class="stat-row"><span>✅ 已掌握单词</span><span class="stat-val"><span id="rpt-mastered">0</span> / <span id="rpt-total">0</span></span></div>
+      <div class="stat-row"><span>📖 学习中</span><span class="stat-val" style="color:#FFD166"><span id="rpt-learning">0</span></span></div>
+      <div class="stat-row"><span>⏰ 学习总时长</span><span class="stat-val"><span id="rpt-time">0 分钟</span></span></div>
+      <div style="margin-top:10px;font-size:13px;color:rgba(255,255,255,0.55);font-weight:800">掌握进度 <span id="rpt-pct">0%</span></div>
+      <div class="prog-bar-bg"><div class="prog-bar-fill" id="rpt-prog" style="width:0%"></div></div>
+    </div>
+    <div class="report-card">
+      <div class="report-card-title">📅 最近7天学习记录</div>
+      <div class="daily-bars" id="daily-bars"></div>
+    </div>
+    <div class="report-card">
+      <div class="report-card-title">❌ 最易出错单词</div>
+      <div id="error-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PARENT MODAL ==================== -->
+
+<div id="parent-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title">🔐 家长中心</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.55)">请输入密码（默认：1234）</div>
+    <input type="password" id="parent-pass" class="modal-input" maxlength="4" placeholder="****" inputmode="numeric">
+    <div class="modal-btn-row">
+      <button class="btn-cancel" id="parent-cancel">取消</button>
+      <button class="btn-confirm" id="parent-confirm">进入 →</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<script>
+// ==================== DATA ====================
+const WORD_DATA = {themes:[
+  // ===== 1. 动物岛 Animals =====
+  {id:"animals",name:"动物岛",nameEn:"Animals",icon:"🦁",bgGradient:"linear-gradient(135deg,#FF6B6B,#FFE66D)",unlocked:true,words:[
+    {id:"w001",word:"elephant",meaning:"大象",image:"🐘",example:"The elephant has a long nose.",distractors:["w002","w003","w004"]},
+    {id:"w002",word:"giraffe",meaning:"长颈鹿",image:"🦒",example:"The giraffe has a very long neck.",distractors:["w001","w003","w005"]},
+    {id:"w003",word:"penguin",meaning:"企鹅",image:"🐧",example:"The penguin lives in cold places.",distractors:["w001","w002","w006"]},
+    {id:"w004",word:"dolphin",meaning:"海豚",image:"🐬",example:"The dolphin swims in the sea.",distractors:["w005","w006","w007"]},
+    {id:"w005",word:"butterfly",meaning:"蝴蝶",image:"🦋",example:"The butterfly has colorful wings.",distractors:["w006","w007","w008"]},
+    {id:"w006",word:"camel",meaning:"骆驼",image:"🐪",example:"The camel lives in the desert.",distractors:["w001","w004","w007"]},
+    {id:"w007",word:"dinosaur",meaning:"恐龙",image:"🦕",example:"The dinosaur is now extinct.",distractors:["w008","w009","w010"]},
+    {id:"w008",word:"insect",meaning:"昆虫",image:"🐛",example:"An ant is a small insect.",distractors:["w005","w006","w009"]},
+    {id:"w009",word:"octopus",meaning:"章鱼",image:"🐙",example:"The octopus has eight arms.",distractors:["w004","w007","w010"]},
+    {id:"w010",word:"swan",meaning:"天鹅",image:"🦢",example:"The swan swims on the lake.",distractors:["w003","w005","w008"]},
+    {id:"w011",word:"parrot",meaning:"鹦鹉",image:"🦜",example:"The parrot can talk like us.",distractors:["w003","w005","w010"]},
+    {id:"w012",word:"tortoise",meaning:"乌龟",image:"🐢",example:"The tortoise walks very slowly.",distractors:["w007","w009","w011"]},
+  ]},
+  // ===== 2. 学校岛 School =====
+  {id:"school",name:"学校岛",nameEn:"School",icon:"📚",bgGradient:"linear-gradient(135deg,#4ECDC4,#45B7D1)",unlocked:true,words:[
+    {id:"s001",word:"classroom",meaning:"教室",image:"🏫",example:"We study in the classroom.",distractors:["s002","s003","s004"]},
+    {id:"s002",word:"dictionary",meaning:"词典",image:"📖",example:"Use a dictionary to find new words.",distractors:["s001","s003","s005"]},
+    {id:"s003",word:"exam",meaning:"考试",image:"📝",example:"We have an English exam tomorrow.",distractors:["s004","s005","s006"]},
+    {id:"s004",word:"geography",meaning:"地理",image:"🗺️",example:"I love studying geography.",distractors:["s001","s005","s007"]},
+    {id:"s005",word:"history",meaning:"历史",image:"🏛️",example:"We learn about the past in history.",distractors:["s003","s004","s006"]},
+    {id:"s006",word:"library",meaning:"图书馆",image:"📚",example:"I borrow books from the library.",distractors:["s007","s008","s009"]},
+    {id:"s007",word:"science",meaning:"科学",image:"🔬",example:"Science is my favourite subject.",distractors:["s004","s005","s006"]},
+    {id:"s008",word:"subject",meaning:"科目",image:"📋",example:"Maths is my favourite subject.",distractors:["s001","s003","s009"]},
+    {id:"s009",word:"university",meaning:"大学",image:"🎓",example:"She studies at university.",distractors:["s001","s005","s010"]},
+    {id:"s010",word:"homework",meaning:"家庭作业",image:"✏️",example:"I do my homework after school.",distractors:["s001","s002","s003"]},
+    {id:"s011",word:"scissors",meaning:"剪刀",image:"✂️",example:"Cut paper with scissors.",distractors:["s008","s009","s010"]},
+    {id:"s012",word:"college",meaning:"学院",image:"🏫",example:"My brother goes to college.",distractors:["s005","s007","s009"]},
+  ]},
+  // ===== 3. 食物岛 Food =====
+  {id:"food",name:"食物岛",nameEn:"Food & Drink",icon:"🍕",bgGradient:"linear-gradient(135deg,#FF9F43,#FFEAA7)",unlocked:false,words:[
+    {id:"f001",word:"butter",meaning:"黄油",image:"🧈",example:"Put butter on your bread.",distractors:["f002","f003","f004"]},
+    {id:"f002",word:"chocolate",meaning:"巧克力",image:"🍫",example:"She loves chocolate cake.",distractors:["f001","f003","f005"]},
+    {id:"f003",word:"flour",meaning:"面粉",image:"🌾",example:"We need flour to make bread.",distractors:["f001","f004","f006"]},
+    {id:"f004",word:"honey",meaning:"蜂蜜",image:"🍯",example:"Bees make honey.",distractors:["f005","f006","f007"]},
+    {id:"f005",word:"jam",meaning:"果酱",image:"🫙",example:"I love strawberry jam on toast.",distractors:["f001","f003","f004"]},
+    {id:"f006",word:"pepper",meaning:"胡椒",image:"🌶️",example:"Add some pepper to the soup.",distractors:["f007","f008","f009"]},
+    {id:"f007",word:"pizza",meaning:"披萨",image:"🍕",example:"We ordered a large pizza.",distractors:["f001","f004","f005"]},
+    {id:"f008",word:"salt",meaning:"盐",image:"🧂",example:"Don't add too much salt.",distractors:["f006","f009","f010"]},
+    {id:"f009",word:"snack",meaning:"零食",image:"🍿",example:"An apple is a healthy snack.",distractors:["f007","f008","f010"]},
+    {id:"f010",word:"sugar",meaning:"糖",image:"🍬",example:"Don't eat too much sugar.",distractors:["f001","f002","f005"]},
+    {id:"f011",word:"strawberry",meaning:"草莓",image:"🍓",example:"I love eating strawberries.",distractors:["f002","f004","f010"]},
+    {id:"f012",word:"watermelon",meaning:"西瓜",image:"🍉",example:"Watermelon is sweet and cool.",distractors:["f007","f009","f011"]},
+  ]},
+  // ===== 4. 职业岛 Jobs =====
+  {id:"jobs",name:"职业岛",nameEn:"Jobs",icon:"👷",bgGradient:"linear-gradient(135deg,#A29BFE,#FD79A8)",unlocked:false,words:[
+    {id:"j001",word:"actor",meaning:"演员",image:"🎭",example:"He is a famous actor.",distractors:["j002","j003","j004"]},
+    {id:"j002",word:"artist",meaning:"艺术家",image:"🎨",example:"The artist paints beautiful pictures.",distractors:["j001","j003","j005"]},
+    {id:"j003",word:"astronaut",meaning:"宇航员",image:"👨‍🚀",example:"The astronaut flew to space.",distractors:["j001","j002","j006"]},
+    {id:"j004",word:"dentist",meaning:"牙医",image:"🦷",example:"I visit the dentist twice a year.",distractors:["j005","j006","j007"]},
+    {id:"j005",word:"engineer",meaning:"工程师",image:"⚙️",example:"An engineer builds bridges.",distractors:["j001","j003","j004"]},
+    {id:"j006",word:"journalist",meaning:"记者",image:"📰",example:"The journalist writes for a newspaper.",distractors:["j007","j008","j009"]},
+    {id:"j007",word:"mechanic",meaning:"机械师",image:"🔧",example:"The mechanic fixed our car.",distractors:["j001","j004","j005"]},
+    {id:"j008",word:"photographer",meaning:"摄影师",image:"📷",example:"The photographer took a great photo.",distractors:["j006","j009","j010"]},
+    {id:"j009",word:"pilot",meaning:"飞行员",image:"✈️",example:"The pilot landed the plane safely.",distractors:["j007","j008","j010"]},
+    {id:"j010",word:"singer",meaning:"歌手",image:"🎤",example:"She is a popular singer.",distractors:["j001","j002","j005"]},
+    {id:"j011",word:"waiter",meaning:"服务员",image:"🍽️",example:"The waiter brought our food.",distractors:["j003","j006","j009"]},
+    {id:"j012",word:"cook",meaning:"厨师",image:"👨‍🍳",example:"The cook made a delicious meal.",distractors:["j004","j007","j011"]},
+  ]},
+  // ===== 5. 自然岛 Nature =====
+  {id:"nature",name:"自然岛",nameEn:"Nature",icon:"🌿",bgGradient:"linear-gradient(135deg,#00B894,#00CEC9)",unlocked:false,words:[
+    {id:"n001",word:"cave",meaning:"山洞",image:"🕳️",example:"The bear lives in a cave.",distractors:["n002","n003","n004"]},
+    {id:"n002",word:"desert",meaning:"沙漠",image:"🏜️",example:"The desert is very hot and dry.",distractors:["n001","n003","n005"]},
+    {id:"n003",word:"environment",meaning:"环境",image:"🌍",example:"We must protect our environment.",distractors:["n001","n002","n006"]},
+    {id:"n004",word:"fog",meaning:"雾",image:"🌫️",example:"It is hard to see in the fog.",distractors:["n005","n006","n007"]},
+    {id:"n005",word:"hill",meaning:"小山",image:"⛰️",example:"We climbed to the top of the hill.",distractors:["n001","n003","n004"]},
+    {id:"n006",word:"planet",meaning:"星球",image:"🪐",example:"Earth is our planet.",distractors:["n007","n008","n009"]},
+    {id:"n007",word:"sky",meaning:"天空",image:"🌤️",example:"The sky is blue today.",distractors:["n001","n004","n005"]},
+    {id:"n008",word:"space",meaning:"太空",image:"🚀",example:"Astronauts travel to space.",distractors:["n006","n009","n010"]},
+    {id:"n009",word:"storm",meaning:"暴风雨",image:"⛈️",example:"A big storm is coming.",distractors:["n007","n008","n010"]},
+    {id:"n010",word:"wood",meaning:"树林",image:"🌲",example:"We walked through the wood.",distractors:["n001","n002","n005"]},
+    {id:"n011",word:"wing",meaning:"翅膀",image:"🪽",example:"Birds use their wings to fly.",distractors:["n004","n007","n010"]},
+    {id:"n012",word:"fur",meaning:"毛皮",image:"🐻",example:"The bear has thick brown fur.",distractors:["n005","n009","n011"]},
+  ]},
+  // ===== 6. 地点岛 Places =====
+  {id:"places",name:"地点岛",nameEn:"Places",icon:"🏰",bgGradient:"linear-gradient(135deg,#6C5CE7,#A29BFE)",unlocked:false,words:[
+    {id:"p001",word:"castle",meaning:"城堡",image:"🏰",example:"We visited an old castle.",distractors:["p002","p003","p004"]},
+    {id:"p002",word:"chemist",meaning:"药店",image:"💊",example:"Buy medicine at the chemist.",distractors:["p001","p003","p005"]},
+    {id:"p003",word:"factory",meaning:"工厂",image:"🏭",example:"Cars are made in this factory.",distractors:["p001","p002","p006"]},
+    {id:"p004",word:"hotel",meaning:"酒店",image:"🏨",example:"We stayed at a nice hotel.",distractors:["p005","p006","p007"]},
+    {id:"p005",word:"museum",meaning:"博物馆",image:"🏛️",example:"We visited a science museum.",distractors:["p001","p003","p004"]},
+    {id:"p006",word:"office",meaning:"办公室",image:"🏢",example:"My mum works in an office.",distractors:["p007","p008","p009"]},
+    {id:"p007",word:"restaurant",meaning:"餐厅",image:"🍽️",example:"We had dinner at a restaurant.",distractors:["p001","p004","p005"]},
+    {id:"p008",word:"theatre",meaning:"剧院",image:"🎭",example:"We watched a play at the theatre.",distractors:["p006","p009","p010"]},
+    {id:"p009",word:"airport",meaning:"机场",image:"✈️",example:"We went to the airport early.",distractors:["p007","p008","p010"]},
+    {id:"p010",word:"hospital",meaning:"医院",image:"🏥",example:"The hospital is near the park.",distractors:["p001","p002","p005"]},
+    {id:"p011",word:"railway",meaning:"铁路",image:"🚂",example:"The railway goes to the city.",distractors:["p003","p006","p009"]},
+    {id:"p012",word:"post office",meaning:"邮局",image:"📮",example:"I sent a letter from the post office.",distractors:["p004","p007","p011"]},
+  ]},
+  // ===== 7. 运动爱好岛 Hobbies =====
+  {id:"hobbies",name:"爱好岛",nameEn:"Hobbies",icon:"🎯",bgGradient:"linear-gradient(135deg,#FD79A8,#FDCB6E)",unlocked:false,words:[
+    {id:"h001",word:"chess",meaning:"国际象棋",image:"♟️",example:"Can you play chess?",distractors:["h002","h003","h004"]},
+    {id:"h002",word:"circus",meaning:"马戏团",image:"🎪",example:"We saw lions at the circus.",distractors:["h001","h003","h005"]},
+    {id:"h003",word:"competition",meaning:"比赛",image:"🏆",example:"She won the swimming competition.",distractors:["h001","h002","h006"]},
+    {id:"h004",word:"concert",meaning:"音乐会",image:"🎵",example:"We went to a concert last night.",distractors:["h005","h006","h007"]},
+    {id:"h005",word:"golf",meaning:"高尔夫",image:"⛳",example:"My dad plays golf every weekend.",distractors:["h001","h003","h004"]},
+    {id:"h006",word:"skiing",meaning:"滑雪",image:"⛷️",example:"We go skiing in winter.",distractors:["h007","h008","h009"]},
+    {id:"h007",word:"sledge",meaning:"雪橇",image:"🛷",example:"The children rode on a sledge.",distractors:["h001","h004","h005"]},
+    {id:"h008",word:"snowboarding",meaning:"单板滑雪",image:"🏂",example:"Snowboarding is exciting!",distractors:["h006","h009","h010"]},
+    {id:"h009",word:"volleyball",meaning:"排球",image:"🏐",example:"They play volleyball on the beach.",distractors:["h007","h008","h010"]},
+    {id:"h010",word:"swimming",meaning:"游泳",image:"🏊",example:"I go swimming every Saturday.",distractors:["h001","h002","h005"]},
+    {id:"h011",word:"basketball",meaning:"篮球",image:"🏀",example:"We play basketball in the park.",distractors:["h003","h009","h010"]},
+    {id:"h012",word:"cycling",meaning:"骑自行车",image:"🚴",example:"Cycling is great exercise.",distractors:["h004","h007","h011"]},
+  ]},
+  // ===== 8. 衣物岛 Clothes =====
+  {id:"clothes",name:"衣物岛",nameEn:"Clothes",icon:"👗",bgGradient:"linear-gradient(135deg,#FDCB6E,#E17055)",unlocked:false,words:[
+    {id:"c001",word:"belt",meaning:"腰带",image:"👔",example:"He wears a brown leather belt.",distractors:["c002","c003","c004"]},
+    {id:"c002",word:"glove",meaning:"手套",image:"🧤",example:"Wear gloves when it is cold.",distractors:["c001","c003","c005"]},
+    {id:"c003",word:"necklace",meaning:"项链",image:"📿",example:"She wore a gold necklace.",distractors:["c001","c002","c006"]},
+    {id:"c004",word:"ring",meaning:"戒指",image:"💍",example:"She has a ring on her finger.",distractors:["c005","c006","c007"]},
+    {id:"c005",word:"shorts",meaning:"短裤",image:"🩳",example:"I wear shorts in summer.",distractors:["c001","c003","c004"]},
+    {id:"c006",word:"sunglasses",meaning:"太阳镜",image:"😎",example:"She put on her sunglasses.",distractors:["c007","c008","c009"]},
+    {id:"c007",word:"tights",meaning:"裤袜",image:"🧦",example:"She wears tights in winter.",distractors:["c001","c004","c005"]},
+    {id:"c008",word:"umbrella",meaning:"雨伞",image:"☂️",example:"Take an umbrella. It might rain.",distractors:["c006","c009","c010"]},
+    {id:"c009",word:"uniform",meaning:"制服",image:"👮",example:"Students wear a school uniform.",distractors:["c007","c008","c010"]},
+    {id:"c010",word:"suitcase",meaning:"手提箱",image:"🧳",example:"Pack your suitcase for the trip.",distractors:["c001","c002","c005"]},
+    {id:"c011",word:"backpack",meaning:"背包",image:"🎒",example:"I carry my books in a backpack.",distractors:["c003","c008","c010"]},
+    {id:"c012",word:"crown",meaning:"王冠",image:"👑",example:"The queen wore a golden crown.",distractors:["c004","c006","c009"]},
+  ]},
+  // ===== 9. 形容词岛 Adjectives =====
+  {id:"adjectives",name:"形容词岛",nameEn:"Adjectives",icon:"🌈",bgGradient:"linear-gradient(135deg,#00CEC9,#6C5CE7)",unlocked:false,words:[
+    {id:"a001",word:"brave",meaning:"勇敢的",image:"🦁",example:"The brave firefighter saved the cat.",distractors:["a002","a003","a004"]},
+    {id:"a002",word:"dangerous",meaning:"危险的",image:"⚠️",example:"It is dangerous to run near the pool.",distractors:["a001","a003","a005"]},
+    {id:"a003",word:"excellent",meaning:"极好的",image:"⭐",example:"She got an excellent score.",distractors:["a001","a002","a006"]},
+    {id:"a004",word:"excited",meaning:"兴奋的",image:"🎉",example:"I am so excited about the trip!",distractors:["a005","a006","a007"]},
+    {id:"a005",word:"expensive",meaning:"昂贵的",image:"💰",example:"This watch is very expensive.",distractors:["a001","a003","a004"]},
+    {id:"a006",word:"extinct",meaning:"灭绝的",image:"🦕",example:"Dinosaurs are now extinct.",distractors:["a007","a008","a009"]},
+    {id:"a007",word:"horrible",meaning:"可怕的",image:"😱",example:"The food tasted horrible.",distractors:["a001","a004","a005"]},
+    {id:"a008",word:"noisy",meaning:"吵闹的",image:"📢",example:"The classroom was very noisy.",distractors:["a006","a009","a010"]},
+    {id:"a009",word:"unusual",meaning:"不寻常的",image:"🤔",example:"That is an unusual name.",distractors:["a007","a008","a010"]},
+    {id:"a010",word:"wonderful",meaning:"精彩的",image:"✨",example:"We had a wonderful holiday.",distractors:["a001","a002","a005"]},
+    {id:"a011",word:"wild",meaning:"野生的",image:"🌿",example:"Lions are wild animals.",distractors:["a003","a006","a010"]},
+    {id:"a012",word:"lucky",meaning:"幸运的",image:"🍀",example:"I am very lucky to have good friends.",distractors:["a004","a007","a011"]},
+  ]},
+  // ===== 10. 动词岛 Verbs =====
+  {id:"verbs",name:"动词岛",nameEn:"Verbs",icon:"⚡",bgGradient:"linear-gradient(135deg,#FF6B6B,#FD79A8)",unlocked:false,words:[
+    {id:"v001",word:"arrive",meaning:"到达",image:"🚉",example:"We arrive at school at 8 o'clock.",distractors:["v002","v003","v004"]},
+    {id:"v002",word:"collect",meaning:"收集",image:"🗃️",example:"I collect stamps from countries.",distractors:["v001","v003","v005"]},
+    {id:"v003",word:"describe",meaning:"描述",image:"💬",example:"Describe what the animal looks like.",distractors:["v001","v002","v006"]},
+    {id:"v004",word:"explain",meaning:"解释",image:"📖",example:"Can you explain the answer?",distractors:["v005","v006","v007"]},
+    {id:"v005",word:"improve",meaning:"改善",image:"📈",example:"Practice will improve your English.",distractors:["v001","v003","v004"]},
+    {id:"v006",word:"repair",meaning:"修理",image:"🔧",example:"Can you repair my bicycle?",distractors:["v007","v008","v009"]},
+    {id:"v007",word:"remember",meaning:"记住",image:"🧠",example:"Remember to bring your homework.",distractors:["v001","v004","v005"]},
+    {id:"v008",word:"steal",meaning:"偷",image:"🦹",example:"The thief tried to steal the money.",distractors:["v006","v009","v010"]},
+    {id:"v009",word:"whisper",meaning:"低声说",image:"🤫",example:"She whispered the secret to me.",distractors:["v007","v008","v010"]},
+    {id:"v010",word:"win",meaning:"赢",image:"🏆",example:"Our team will win the match!",distractors:["v001","v002","v005"]},
+    {id:"v011",word:"explore",meaning:"探索",image:"🔍",example:"We explored the old town.",distractors:["v003","v006","v010"]},
+    {id:"v012",word:"imagine",meaning:"想象",image:"💭",example:"Imagine living on the moon!",distractors:["v004","v007","v011"]},
+  ]},
+  // ===== 11. 家居岛 Home =====
+  {id:"home",name:"家居岛",nameEn:"Home",icon:"🏠",bgGradient:"linear-gradient(135deg,#55efc4,#00B894)",unlocked:false,words:[
+    {id:"hm001",word:"brush",meaning:"刷子",image:"🪥",example:"Use a brush to clean your teeth.",distractors:["hm002","hm003","hm004"]},
+    {id:"hm002",word:"cooker",meaning:"炉灶",image:"🍳",example:"Mum cooks on the cooker.",distractors:["hm001","hm003","hm005"]},
+    {id:"hm003",word:"fridge",meaning:"冰箱",image:"🧊",example:"Keep food cold in the fridge.",distractors:["hm001","hm002","hm006"]},
+    {id:"hm004",word:"fork",meaning:"叉子",image:"🍴",example:"Use a fork to eat your food.",distractors:["hm005","hm006","hm007"]},
+    {id:"hm005",word:"knife",meaning:"刀",image:"🔪",example:"Cut the bread with a knife.",distractors:["hm001","hm003","hm004"]},
+    {id:"hm006",word:"shelf",meaning:"架子",image:"🗄️",example:"The books are on the shelf.",distractors:["hm007","hm008","hm009"]},
+    {id:"hm007",word:"soap",meaning:"肥皂",image:"🧼",example:"Wash your hands with soap.",distractors:["hm001","hm004","hm005"]},
+    {id:"hm008",word:"spoon",meaning:"汤匙",image:"🥄",example:"Stir with a spoon.",distractors:["hm006","hm009","hm010"]},
+    {id:"hm009",word:"glue",meaning:"胶水",image:"🖊️",example:"Use glue to stick the paper.",distractors:["hm007","hm008","hm010"]},
+    {id:"hm010",word:"comb",meaning:"梳子",image:"💈",example:"Comb your hair every morning.",distractors:["hm001","hm002","hm005"]},
+    {id:"hm011",word:"bin",meaning:"垃圾桶",image:"🗑️",example:"Put rubbish in the bin.",distractors:["hm003","hm006","hm010"]},
+    {id:"hm012",word:"drum",meaning:"鼓",image:"🥁",example:"He plays the drum in the band.",distractors:["hm004","hm008","hm011"]},
+  ]},
+  // ===== 12. 通信媒体岛 Communication =====
+  {id:"media",name:"通信岛",nameEn:"Communication",icon:"📬",bgGradient:"linear-gradient(135deg,#74b9ff,#0984e3)",unlocked:false,words:[
+    {id:"m001",word:"diary",meaning:"日记",image:"📔",example:"I write in my diary every night.",distractors:["m002","m003","m004"]},
+    {id:"m002",word:"envelope",meaning:"信封",image:"✉️",example:"Put the letter in an envelope.",distractors:["m001","m003","m005"]},
+    {id:"m003",word:"magazine",meaning:"杂志",image:"📰",example:"I read a sports magazine.",distractors:["m001","m002","m006"]},
+    {id:"m004",word:"newspaper",meaning:"报纸",image:"📄",example:"My dad reads the newspaper.",distractors:["m005","m006","m007"]},
+    {id:"m005",word:"postcard",meaning:"明信片",image:"📮",example:"I sent a postcard from France.",distractors:["m001","m003","m004"]},
+    {id:"m006",word:"programme",meaning:"节目/程序",image:"📺",example:"My favourite programme is on TV.",distractors:["m007","m008","m009"]},
+    {id:"m007",word:"screen",meaning:"屏幕",image:"🖥️",example:"Look at the screen carefully.",distractors:["m001","m004","m005"]},
+    {id:"m008",word:"stamp",meaning:"邮票",image:"🏷️",example:"Put a stamp on the envelope.",distractors:["m006","m009","m010"]},
+    {id:"m009",word:"telephone",meaning:"电话",image:"📞",example:"She answered the telephone.",distractors:["m007","m008","m010"]},
+    {id:"m010",word:"information",meaning:"信息",image:"ℹ️",example:"Can I get some information?",distractors:["m001","m002","m005"]},
+    {id:"m011",word:"channel",meaning:"频道",image:"📡",example:"Change to a different channel.",distractors:["m003","m006","m009"]},
+    {id:"m012",word:"letter",meaning:"信件",image:"📨",example:"I wrote a letter to my friend.",distractors:["m002","m004","m008"]},
+  ]},
+  // ===== 13. 冒险故事岛 Adventure =====
+  {id:"adventure",name:"冒险岛",nameEn:"Adventure",icon:"⚔️",bgGradient:"linear-gradient(135deg,#e17055,#d63031)",unlocked:false,words:[
+    {id:"ad001",word:"adventure",meaning:"冒险",image:"🗺️",example:"We had a great adventure.",distractors:["ad002","ad003","ad004"]},
+    {id:"ad002",word:"bridge",meaning:"桥",image:"🌉",example:"We crossed the bridge.",distractors:["ad001","ad003","ad005"]},
+    {id:"ad003",word:"gold",meaning:"金子",image:"🥇",example:"Pirates searched for gold.",distractors:["ad001","ad002","ad006"]},
+    {id:"ad004",word:"flag",meaning:"旗子",image:"🚩",example:"The team waved the flag.",distractors:["ad005","ad006","ad007"]},
+    {id:"ad005",word:"prize",meaning:"奖品",image:"🎁",example:"She won first prize.",distractors:["ad001","ad003","ad004"]},
+    {id:"ad006",word:"rocket",meaning:"火箭",image:"🚀",example:"The rocket flew to the moon.",distractors:["ad007","ad008","ad009"]},
+    {id:"ad007",word:"secret",meaning:"秘密",image:"🤫",example:"Can you keep a secret?",distractors:["ad001","ad004","ad005"]},
+    {id:"ad008",word:"pyramid",meaning:"金字塔",image:"🔺",example:"We saw the pyramids in Egypt.",distractors:["ad006","ad009","ad010"]},
+    {id:"ad009",word:"century",meaning:"世纪",image:"🕰️",example:"A century is one hundred years.",distractors:["ad007","ad008","ad010"]},
+    {id:"ad010",word:"king",meaning:"国王",image:"👑",example:"The king lived in a castle.",distractors:["ad001","ad002","ad005"]},
+    {id:"ad011",word:"island",meaning:"岛屿",image:"🏝️",example:"We sailed to a small island.",distractors:["ad003","ad006","ad010"]},
+    {id:"ad012",word:"journey",meaning:"旅程",image:"🧭",example:"The journey took three days.",distractors:["ad004","ad008","ad011"]},
+  ]},
+  // ===== 14. 时间季节岛 Time =====
+  {id:"seasons",name:"时间岛",nameEn:"Time & Seasons",icon:"🕐",bgGradient:"linear-gradient(135deg,#a29bfe,#6c5ce7)",unlocked:false,words:[
+    {id:"t001",word:"spring",meaning:"春天",image:"🌸",example:"Flowers bloom in spring.",distractors:["t002","t003","t004"]},
+    {id:"t002",word:"summer",meaning:"夏天",image:"☀️",example:"We swim in summer.",distractors:["t001","t003","t005"]},
+    {id:"t003",word:"autumn",meaning:"秋天",image:"🍂",example:"Leaves fall in autumn.",distractors:["t001","t002","t006"]},
+    {id:"t004",word:"winter",meaning:"冬天",image:"❄️",example:"It snows in winter.",distractors:["t005","t006","t007"]},
+    {id:"t005",word:"midnight",meaning:"午夜",image:"🌙",example:"I fell asleep before midnight.",distractors:["t001","t003","t004"]},
+    {id:"t006",word:"midday",meaning:"正午",image:"🌞",example:"We eat lunch at midday.",distractors:["t007","t008","t009"]},
+    {id:"t007",word:"timetable",meaning:"时刻表",image:"📅",example:"Check the train timetable.",distractors:["t001","t004","t005"]},
+    {id:"t008",word:"calendar",meaning:"日历",image:"📆",example:"Mark the date on the calendar.",distractors:["t006","t009","t010"]},
+    {id:"t009",word:"century",meaning:"世纪",image:"🕰️",example:"A century is 100 years.",distractors:["t007","t008","t010"]},
+    {id:"t010",word:"future",meaning:"未来",image:"🔮",example:"What will happen in the future?",distractors:["t001","t002","t005"]},
+    {id:"t011",word:"journey",meaning:"旅程",image:"🧭",example:"The train journey took two hours.",distractors:["t003","t006","t010"]},
+    {id:"t012",word:"holiday",meaning:"假期",image:"🏖️",example:"We go to the beach on holiday.",distractors:["t004","t007","t011"]},
+  ]},
+]};
+
+const BOSS_Q = {
+  animals:[
+    {type:"pick",q:"Which animal lives in the desert?",ans:"w006",opts:["w006","w003","w010","w004"]},
+    {type:"pick",q:"Which animal has eight arms?",ans:"w009",opts:["w009","w004","w008","w012"]},
+    {type:"spell",q:"Spell this animal:",wid:"w001"},
+    {type:"pick",q:"Which animal is now extinct?",ans:"w007",opts:["w007","w006","w012","w011"]},
+    {type:"spell",q:"Spell this animal:",wid:"w003"},
+  ],
+  school:[
+    {type:"pick",q:"Where can you borrow books?",ans:"s006",opts:["s006","s001","s009","s012"]},
+    {type:"pick",q:"What do you take to show what you have learned?",ans:"s003",opts:["s003","s010","s008","s002"]},
+    {type:"spell",q:"Spell this school word:",wid:"s004"},
+    {type:"pick",q:"What is your favourite school subject?",ans:"s008",opts:["s008","s001","s006","s010"]},
+    {type:"spell",q:"Spell this:",wid:"s007"},
+  ],
+  food:[
+    {type:"pick",q:"Which is made by bees?",ans:"f004",opts:["f004","f005","f010","f002"]},
+    {type:"spell",q:"Spell this food:",wid:"f002"},
+    {type:"pick",q:"What do you add to make food taste sweeter?",ans:"f010",opts:["f010","f008","f006","f001"]},
+    {type:"pick",q:"Which is a healthy snack?",ans:"f009",opts:["f009","f002","f010","f007"]},
+    {type:"spell",q:"Spell this fruit:",wid:"f011"},
+  ],
+  jobs:[
+    {type:"pick",q:"Who flies planes?",ans:"j009",opts:["j009","j003","j007","j001"]},
+    {type:"spell",q:"Spell this job:",wid:"j004"},
+    {type:"pick",q:"Who writes for newspapers?",ans:"j006",opts:["j006","j010","j008","j002"]},
+    {type:"pick",q:"Who travels to space?",ans:"j003",opts:["j003","j009","j005","j012"]},
+    {type:"spell",q:"Spell this job:",wid:"j010"},
+  ],
+  nature:[
+    {type:"pick",q:"Where might a bear sleep?",ans:"n001",opts:["n001","n002","n005","n010"]},
+    {type:"spell",q:"Spell this nature word:",wid:"n009"},
+    {type:"pick",q:"What do birds use to fly?",ans:"n011",opts:["n011","n007","n012","n005"]},
+    {type:"pick",q:"Where do astronauts go?",ans:"n008",opts:["n008","n006","n007","n010"]},
+    {type:"spell",q:"Spell this:",wid:"n003"},
+  ],
+  places:[
+    {type:"pick",q:"Where do you go when you are sick?",ans:"p010",opts:["p010","p002","p001","p006"]},
+    {type:"spell",q:"Spell this place:",wid:"p005"},
+    {type:"pick",q:"Where can you watch plays?",ans:"p008",opts:["p008","p007","p005","p009"]},
+    {type:"pick",q:"Where do trains travel on?",ans:"p011",opts:["p011","p009","p006","p003"]},
+    {type:"spell",q:"Spell this:",wid:"p004"},
+  ],
+  hobbies:[
+    {type:"pick",q:"Which sport uses a shuttlecock?",ans:"h012",opts:["h012","h010","h011","h009"]},
+    {type:"spell",q:"Spell this hobby:",wid:"h001"},
+    {type:"pick",q:"Which winter sport uses a board?",ans:"h008",opts:["h008","h006","h007","h012"]},
+    {type:"pick",q:"Which sport is done in a pool?",ans:"h010",opts:["h010","h009","h011","h006"]},
+    {type:"spell",q:"Spell this sport:",wid:"h011"},
+  ],
+  clothes:[
+    {type:"pick",q:"What do you wear on a rainy day?",ans:"c008",opts:["c008","c006","c002","c001"]},
+    {type:"spell",q:"Spell this clothing item:",wid:"c005"},
+    {type:"pick",q:"What protects your eyes from the sun?",ans:"c006",opts:["c006","c008","c012","c003"]},
+    {type:"pick",q:"What do you carry your things in?",ans:"c011",opts:["c011","c010","c001","c009"]},
+    {type:"spell",q:"Spell this:",wid:"c009"},
+  ],
+  adjectives:[
+    {type:"pick",q:"What word describes something costing a lot of money?",ans:"a005",opts:["a005","a003","a010","a012"]},
+    {type:"spell",q:"Spell this adjective:",wid:"a002"},
+    {type:"pick",q:"Which word means animals that no longer exist?",ans:"a006",opts:["a006","a011","a009","a001"]},
+    {type:"pick",q:"How do you feel before a party?",ans:"a004",opts:["a004","a007","a001","a012"]},
+    {type:"spell",q:"Spell this:",wid:"a010"},
+  ],
+  verbs:[
+    {type:"pick",q:"What do you do when you get to a place?",ans:"v001",opts:["v001","v007","v010","v005"]},
+    {type:"spell",q:"Spell this verb:",wid:"v003"},
+    {type:"pick",q:"What do you do when you talk very quietly?",ans:"v009",opts:["v009","v003","v004","v007"]},
+    {type:"pick",q:"What do you do when you make something better?",ans:"v005",opts:["v005","v010","v002","v006"]},
+    {type:"spell",q:"Spell this:",wid:"v010"},
+  ],
+  home:[
+    {type:"pick",q:"What do you keep food cold in?",ans:"hm003",opts:["hm003","hm002","hm006","hm010"]},
+    {type:"spell",q:"Spell this household item:",wid:"hm007"},
+    {type:"pick",q:"What do you use to stir soup?",ans:"hm008",opts:["hm008","hm004","hm005","hm001"]},
+    {type:"pick",q:"Where do you throw away rubbish?",ans:"hm011",opts:["hm011","hm006","hm010","hm003"]},
+    {type:"spell",q:"Spell this:",wid:"hm001"},
+  ],
+  media:[
+    {type:"pick",q:"What do you write your thoughts in every day?",ans:"m001",opts:["m001","m012","m004","m005"]},
+    {type:"spell",q:"Spell this word:",wid:"m003"},
+    {type:"pick",q:"What do you put a letter inside?",ans:"m002",opts:["m002","m012","m005","m008"]},
+    {type:"pick",q:"What do you put on a letter to send it?",ans:"m008",opts:["m008","m002","m005","m011"]},
+    {type:"spell",q:"Spell this:",wid:"m009"},
+  ],
+  adventure:[
+    {type:"pick",q:"What did pirates look for?",ans:"ad003",opts:["ad003","ad005","ad010","ad007"]},
+    {type:"spell",q:"Spell this adventure word:",wid:"ad007"},
+    {type:"pick",q:"What do you call a trip that takes a long time?",ans:"ad012",opts:["ad012","ad001","ad009","ad011"]},
+    {type:"pick",q:"What is built every 100 years?",ans:"ad009",opts:["ad009","ad012","ad007","ad005"]},
+    {type:"spell",q:"Spell this:",wid:"ad003"},
+  ],
+  seasons:[
+    {type:"pick",q:"Which season comes after winter?",ans:"t001",opts:["t001","t002","t003","t004"]},
+    {type:"spell",q:"Spell this season:",wid:"t003"},
+    {type:"pick",q:"What is 12 o'clock in the middle of the night?",ans:"t005",opts:["t005","t006","t010","t007"]},
+    {type:"pick",q:"What do you check for train times?",ans:"t007",opts:["t007","t008","t011","t009"]},
+    {type:"spell",q:"Spell this:",wid:"t002"},
+  ],
+};
+
+// ==================== HELPERS ====================
+function getAllWords(){return WORD_DATA.themes.flatMap(t=>t.words.map(w=>({...w,themeId:t.id,themeName:t.name})));}
+function getWordById(id){for(const t of WORD_DATA.themes){const w=t.words.find(x=>x.id===id);if(w)return{...w,themeId:t.id,themeName:t.name};}return null;}
+function getThemeById(id){return WORD_DATA.themes.find(t=>t.id===id);}
+
+// ==================== STORAGE ====================
+const SK='cw_v3';
+let S=null;
+
+function loadState(){
+  try{const d=localStorage.getItem(SK);return d?JSON.parse(d):null;}catch(e){return null;}
+}
+function saveState(){
+  try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
+}
+function initState(nick,avatar){
+  S={nickname:nick||'小勇士',avatar:avatar||'🦊',decorations:[],equippedDecorations:[],
+    wordProgress:{},themeProgress:{},totalTime:0,lastLogin:new Date().toISOString(),
+    dailyLogs:{},muted:false};
+  WORD_DATA.themes.forEach(t=>{S.themeProgress[t.id]={unlocked:t.unlocked,bossDefeated:false};});
+  saveState();
+}
+function getWP(wid){return S.wordProgress[wid]||{status:'new',correctCount:0,errorCount:0,consecutive:0,inMonster:false,lastReview:null};}
+function setWP(wid,p){S.wordProgress[wid]=p;saveState();}
+function recordCorrect(wid){
+  const wp=getWP(wid);
+  wp.correctCount=(wp.correctCount||0)+1;
+  wp.consecutive=(wp.consecutive||0)+1;
+  if(wp.consecutive>=3){wp.status='mastered';wp.inMonster=false;}
+  else wp.status='learning';
+  wp.lastReview=new Date().toISOString().split('T')[0];
+  setWP(wid,wp);
+}
+function recordError(wid){
+  const wp=getWP(wid);
+  wp.errorCount=(wp.errorCount||0)+1;
+  wp.consecutive=0;
+  if(wp.errorCount>=2)wp.inMonster=true;
+  wp.lastReview=new Date().toISOString().split('T')[0];
+  setWP(wid,wp);
+}
+function getThemeProg(tid){
+  const t=getThemeById(tid);if(!t)return{total:0,mastered:0};
+  let mastered=0;t.words.forEach(w=>{if(getWP(w.id).status==='mastered')mastered++;});
+  return{total:t.words.length,mastered};
+}
+function isThemeMastered(tid){
+  const t=getThemeById(tid);if(!t)return false;
+  return t.words.every(w=>getWP(w.id).status==='mastered');
+}
+function unlockNext(tid){
+  const idx=WORD_DATA.themes.findIndex(t=>t.id===tid);
+  if(idx>=0&&idx<WORD_DATA.themes.length-1){
+    const nid=WORD_DATA.themes[idx+1].id;
+    if(!S.themeProgress[nid])S.themeProgress[nid]={};
+    S.themeProgress[nid].unlocked=true;saveState();
+  }
+}
+function getMonsterWords(){return getAllWords().filter(w=>{const wp=getWP(w.id);return wp.inMonster&&wp.status!=='mastered';});}
+function addDeco(d){if(!S.decorations.includes(d)){S.decorations.push(d);saveState();}}
+function addTime(sec){
+  S.totalTime=(S.totalTime||0)+sec;
+  const today=new Date().toISOString().split('T')[0];
+  if(!S.dailyLogs)S.dailyLogs={};
+  S.dailyLogs[today]=(S.dailyLogs[today]||0)+sec;
+  saveState();
+}
+
+// ==================== AUDIO ====================
+let audioCtx=null;
+let audioUnlocked=false;
+
+function unlockAudio(){
+  if(audioUnlocked)return;
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    // iOS requires resume after user gesture
+    if(audioCtx.state==='suspended')audioCtx.resume();
+    audioUnlocked=true;
+  }catch(e){}
+}
+
+function playTone(freq,dur,type='sine',vol=0.25){
+  if(S&&S.muted)return;
+  if(!audioCtx)return;
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  try{
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.connect(gain);gain.connect(audioCtx.destination);
+    osc.type=type;osc.frequency.value=freq;
+    gain.gain.setValueAtTime(vol,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
+    osc.start(audioCtx.currentTime);osc.stop(audioCtx.currentTime+dur);
+  }catch(e){}
+}
+
+function playSuccess(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,0.2,'sine',0.22),i*100));}
+function playError(){playTone(200,0.28,'sawtooth',0.12);}
+function playClick(){playTone(800,0.07,'sine',0.1);}
+function playVictory(){[523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>playTone(f,0.22,'sine',0.18),i*110));}
+function playDefeat(){[300,250,200,150].forEach((f,i)=>setTimeout(()=>playTone(f,0.28,'sawtooth',0.18),i*140));}
+
+// ===== iOS-safe TTS =====
+let ttsReady=false;
+let ttsVoice=null;
+
+function initTTS(){
+  if(!('speechSynthesis' in window))return;
+  function loadVoices(){
+    const vs=window.speechSynthesis.getVoices();
+    if(vs.length>0){
+      ttsVoice=vs.find(v=>v.lang.startsWith('en-GB'))||vs.find(v=>v.lang.startsWith('en'))||vs[0];
+      ttsReady=true;
+    }
+  }
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged=loadVoices;
+}
+
+function speak(text){
+  if(S&&S.muted)return;
+  if(!('speechSynthesis' in window))return;
+  // iOS: must cancel before speaking
+  window.speechSynthesis.cancel();
+  // Small delay needed on iOS
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-GB';u.rate=0.82;u.pitch=1.05;u.volume=1;
+    if(ttsVoice)u.voice=ttsVoice;
+    window.speechSynthesis.speak(u);
+  },50);
+}
+
+// ==================== CONFETTI ====================
+function spawnCoins(container){
+  const emj=['🪙','⭐','✨','💫','🌟'];
+  for(let i=0;i<12;i++){
+    const c=document.createElement('div');c.className='coin';
+    c.textContent=emj[Math.floor(Math.random()*emj.length)];
+    c.style.left=Math.random()*88+4+'%';c.style.top='-28px';
+    c.style.animationDelay=Math.random()*0.5+'s';
+    c.style.animationDuration=0.8+Math.random()*0.6+'s';
+    container.appendChild(c);setTimeout(()=>c.remove(),1600);
+  }
+}
+
+// ==================== SCREEN MANAGEMENT ====================
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('screen-'+name);
+  if(el)el.classList.add('active');
+  // Update nav
+  ['nav-map','nav-map2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('active',name==='map');});
+  ['nav-monsters','nav-monsters2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('active',name==='monsters');});
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.remove('hidden');t.style.opacity='1';
+  clearTimeout(t._t);t._t=setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.classList.add('hidden'),400);},2500);
+}
+
+// ==================== SPLASH ====================
+(function setupSplash(){
+  // Stars
+  const sc=document.getElementById('stars-container');
+  for(let i=0;i<55;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2.5+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s;`;
+    sc.appendChild(s);
+  }
+  // Avatars
+  const avs=['🦊','🐼','🐸','🐰','🦄','🐯'];
+  const ag=document.getElementById('avatar-grid');
+  avs.forEach((a,i)=>{
+    const btn=document.createElement('button');btn.className='avatar-btn'+(i===0?' selected':'');
+    btn.dataset.emoji=a;btn.textContent=a;
+    btn.addEventListener('click',()=>{
+      unlockAudio();playClick();
+      document.querySelectorAll('.avatar-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    ag.appendChild(btn);
+  });
+})();
+
+document.getElementById('btn-start').addEventListener('click',()=>{
+  unlockAudio();playClick();
+  const nick=document.getElementById('nickname-input').value.trim()||'小勇士';
+  const sel=document.querySelector('.avatar-btn.selected');
+  const avatar=sel?sel.dataset.emoji:'🦊';
+  initState(nick,avatar);
+  updateTopBar();renderMap();showScreen('map');
+});
+
+// ==================== TOP BAR ====================
+function updateTopBar(){
+  document.getElementById('top-avatar').textContent=S.avatar;
+  document.getElementById('top-name').textContent=S.nickname;
+  document.getElementById('mute-btn').textContent=S.muted?'🔇':'🔊';
+}
+document.getElementById('top-avatar').addEventListener('click',()=>{unlockAudio();playClick();renderDressUp();showScreen('dressup');});
+document.getElementById('mute-btn').addEventListener('click',()=>{
+  unlockAudio();S.muted=!S.muted;saveState();
+  document.getElementById('mute-btn').textContent=S.muted?'🔇':'🔊';playClick();
+});
+
+// Long-press or click settings
+let settingsTimer=null;
+const settingsBtn=document.getElementById('settings-btn');
+function tryParentModal(){unlockAudio();document.getElementById('parent-modal').classList.remove('hidden');document.getElementById('parent-pass').value='';document.getElementById('parent-pass').focus();}
+settingsBtn.addEventListener('click',tryParentModal);
+settingsBtn.addEventListener('touchstart',()=>{settingsTimer=setTimeout(tryParentModal,2000);},{passive:true});
+settingsBtn.addEventListener('touchend',()=>clearTimeout(settingsTimer),{passive:true});
+
+// ==================== MAP ====================
+let sessionStart=Date.now();
+setInterval(()=>{if(S){addTime(Math.floor((Date.now()-sessionStart)/1000));sessionStart=Date.now();}},30000);
+
+function renderMap(){
+  const grid=document.getElementById('islands-grid');grid.innerHTML='';
+  WORD_DATA.themes.forEach(theme=>{
+    const tp=S.themeProgress[theme.id]||{};
+    const prog=getThemeProg(theme.id);
+    const unlocked=tp.unlocked!==false;
+    const bossDefeated=tp.bossDefeated;
+    const canBoss=isThemeMastered(theme.id)&&!bossDefeated;
+    const card=document.createElement('div');
+    card.className='island-card'+(unlocked?'':' locked');
+    card.style.background=theme.bgGradient;
+    const stars=Array.from({length:theme.words.length},(_,i)=>`<span class="st${i<prog.mastered?' lit':''}">★</span>`).join('');
+    card.innerHTML=`
+      <div class="island-icon">${theme.icon}</div>
+      <div class="island-name">${theme.name}</div>
+      <div class="island-name-en">${theme.nameEn}</div>
+      <div class="island-stars">${stars}</div>
+      ${!unlocked?'<div class="island-lock">🔒</div>':''}
+      ${canBoss?'<div class="island-boss-badge">⚔️ Boss!</div>':''}
+      ${bossDefeated?'<div class="island-boss-badge" style="background:#06D6A0">✅ 通关</div>':''}
+    `;
+    card.addEventListener('click',()=>{
+      unlockAudio();playClick();
+      if(unlocked)openTheme(theme.id);
+      else{playError();showToast('先完成前一个岛屿才能解锁！🔒');}
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ==================== WORD LIST ====================
+let currentThemeId=null;
+function openTheme(tid){
+  currentThemeId=tid;
+  const theme=getThemeById(tid);if(!theme)return;
+  document.getElementById('words-theme-title').textContent=theme.name+' '+theme.icon;
+  const grid=document.getElementById('words-grid');grid.innerHTML='';
+  theme.words.forEach(word=>{
+    const wp=getWP(word.id);const con=Math.min(wp.consecutive||0,3);
+    const chest=document.createElement('div');
+    chest.className='word-chest '+(wp.status||'new');
+    chest.innerHTML=`
+      <div class="chest-icon">${wp.status==='mastered'?'💎':wp.status==='learning'?'📦':'🔒'}</div>
+      <div class="chest-word">${word.word}</div>
+      <div class="chest-meaning">${word.meaning}</div>
+      <div class="chest-stars">${[0,1,2].map(i=>`<span class="s${i<con?' on':''}">${'★'}</span>`).join('')}</div>
+    `;
+    chest.addEventListener('click',()=>{unlockAudio();playClick();startLearn(word.id,0);});
+    grid.appendChild(chest);
+  });
+  const bossBtn=document.getElementById('boss-btn');
+  const tp=S.themeProgress[tid]||{};
+  if(isThemeMastered(tid)&&!tp.bossDefeated){
+    bossBtn.classList.remove('hidden');
+    bossBtn.onclick=()=>{unlockAudio();playClick();startBoss(tid);};
+  }else bossBtn.classList.add('hidden');
+  showScreen('words');
+}
+document.getElementById('back-from-words').addEventListener('click',()=>{playClick();showScreen('map');renderMap();});
+
+// ==================== LEARN FLOW ====================
+const LF={wordId:null,step:0,listenErrors:0,slots:[],shuffled:[],fromMonster:false};
+
+function startLearn(wid,step,fromMonster=false){
+  LF.wordId=wid;LF.step=step;LF.fromMonster=fromMonster;LF.listenErrors=0;
+  renderLearnStep(step);showScreen('learn');
+}
+
+function setDots(step){
+  [0,1,2].forEach(i=>{
+    const d=document.getElementById('dot'+i);
+    d.classList.remove('done','active');
+    if(i<step)d.classList.add('done');
+    else if(i===step)d.classList.add('active');
+  });
+}
+
+function renderLearnStep(step){
+  setDots(step);
+  document.querySelectorAll('.learn-step').forEach(s=>s.classList.remove('active'));
+  const word=getWordById(LF.wordId);
+  if(step===0)renderExplore(word);
+  else if(step===1)renderListen(word);
+  else renderSpell(word);
+}
+
+// Step 0
+function renderExplore(word){
+  document.getElementById('step-explore').classList.add('active');
+  document.getElementById('explore-image').textContent=word.image;
+  document.getElementById('explore-word').textContent=word.word;
+  document.getElementById('explore-meaning').textContent=word.meaning;
+  const ex=word.example.replace(new RegExp('\\b'+word.word+'\\b','gi'),m=>`<strong>${m}</strong>`);
+  document.getElementById('explore-example').innerHTML=ex;
+  setTimeout(()=>speak(word.word),600);
+}
+document.getElementById('explore-speak').addEventListener('click',()=>{unlockAudio();speak(getWordById(LF.wordId).word);});
+document.getElementById('explore-image').addEventListener('click',()=>{unlockAudio();speak(getWordById(LF.wordId).word);});
+document.getElementById('btn-to-listen').addEventListener('click',()=>{playClick();LF.step=1;renderLearnStep(1);});
+
+// Step 1
+function renderListen(word){
+  document.getElementById('step-listen').classList.add('active');
+  LF.listenErrors=0;
+  document.getElementById('listen-hint').textContent='';
+  const theme=getThemeById(word.themeId);
+  let pool=theme.words.filter(w=>w.id!==word.id);
+  let dids=(word.distractors||[]).filter(id=>pool.find(w=>w.id===id));
+  while(dids.length<3&&pool.length>dids.length){
+    const ex=pool.find(w=>!dids.includes(w.id)&&w.id!==word.id);
+    if(ex)dids.push(ex.id);else break;
+  }
+  const choices=[word.id,...dids.slice(0,3)].sort(()=>Math.random()-0.5);
+  const grid=document.getElementById('choices-grid');grid.innerHTML='';
+  choices.forEach(id=>{
+    const w=theme.words.find(x=>x.id===id);if(!w)return;
+    const card=document.createElement('div');card.className='choice-card';card.dataset.id=id;
+    card.innerHTML=`<div class="ci">${w.image}</div><div class="choice-label">${w.meaning}</div>`;
+    card.addEventListener('click',()=>handleListenChoice(id,word.id,card,word));
+    grid.appendChild(card);
+  });
+  setTimeout(()=>speak(word.word),500);
+}
+document.getElementById('listen-speak').addEventListener('click',()=>{unlockAudio();speak(getWordById(LF.wordId).word);});
+
+function handleListenChoice(chosen,correct,card,word){
+  if(card.classList.contains('wrong-flash'))return;
+  unlockAudio();
+  if(chosen===correct){
+    card.classList.add('correct-flash');playSuccess();
+    recordCorrect(correct);
+    setTimeout(()=>{LF.step=2;renderLearnStep(2);},750);
+  }else{
+    LF.listenErrors++;card.classList.add('wrong-flash');playError();
+    if(LF.listenErrors>=3){
+      recordError(correct);
+      document.getElementById('listen-hint').textContent='💡 正确答案已标出！';
+      document.querySelectorAll('.choice-card').forEach(c=>{if(c.dataset.id===correct)c.classList.add('correct-flash');});
+      setTimeout(()=>{LF.step=2;renderLearnStep(2);},1600);
+    }else{
+      document.getElementById('listen-hint').textContent=`再试试！还有${3-LF.listenErrors}次机会`;
+      setTimeout(()=>card.classList.remove('wrong-flash'),700);
+    }
+  }
+}
+
+// Step 2 - Spell
+function renderSpell(word){
+  document.getElementById('step-spell').classList.add('active');
+  document.getElementById('spell-image').textContent=word.image;
+  LF.slots=Array(word.word.length).fill(null);
+  const letters=word.word.toLowerCase().split('').map((l,i)=>({l,i}));
+  LF.shuffled=[...letters].sort(()=>Math.random()-0.5);
+  renderSpellSlots(word,'spell-slots');
+  renderSpellTiles('spell-tiles',false);
+  setTimeout(()=>speak(word.word),500);
+}
+document.getElementById('spell-speak').addEventListener('click',()=>{unlockAudio();speak(getWordById(LF.wordId).word);});
+
+function renderSpellSlots(word,containerId){
+  const cont=document.getElementById(containerId);cont.innerHTML='';
+  for(let i=0;i<word.word.length;i++){
+    const slot=document.createElement('div');slot.className='spell-slot';slot.dataset.idx=i;
+    slot.addEventListener('click',()=>removeSlot(i,containerId.replace('slots','tiles')));
+    cont.appendChild(slot);
+  }
+}
+
+function renderSpellTiles(containerId,isBoss){
+  const cont=document.getElementById(containerId);cont.innerHTML='';
+  LF.shuffled.forEach((obj,ti)=>{
+    const used=LF.slots.some(s=>s&&s.ti===ti);
+    const tile=document.createElement('div');tile.className='letter-tile'+(used?' used':'');
+    tile.textContent=obj.l.toUpperCase();tile.dataset.ti=ti;
+    if(!used){
+      tile.addEventListener('click',()=>{
+        unlockAudio();playClick();
+        const ei=LF.slots.indexOf(null);if(ei===-1)return;
+        LF.slots[ei]={ti,l:obj.l};
+        const slotsEl=document.getElementById(isBoss?'boss-spell-slots':'spell-slots');
+        const slotEls=slotsEl.querySelectorAll('.spell-slot');
+        if(slotEls[ei]){slotEls[ei].textContent=obj.l.toUpperCase();slotEls[ei].classList.add('filled');}
+        tile.classList.add('used');tile.style.pointerEvents='none';
+        if(isBoss)checkBossSpell();else checkSpell();
+      });
+      // Touch drag
+      setupTileDrag(tile,ti,obj.l,isBoss);
+    }
+    cont.appendChild(tile);
+  });
+}
+
+function removeSlot(idx,tilesId){
+  if(!LF.slots[idx])return;
+  playClick();
+  const ti=LF.slots[idx].ti;LF.slots[idx]=null;
+  const slotsEl=document.getElementById(tilesId?tilesId.replace('tiles','slots'):null)||document.getElementById('spell-slots');
+  const slotEls=slotsEl.querySelectorAll('.spell-slot');
+  if(slotEls[idx]){slotEls[idx].textContent='';slotEls[idx].classList.remove('filled','correct-all');}
+  const tilesEl=document.getElementById(tilesId||'spell-tiles');
+  const tileEls=tilesEl.querySelectorAll('.letter-tile');
+  if(tileEls[ti]){tileEls[ti].classList.remove('used');tileEls[ti].style.pointerEvents='';}
+}
+
+function checkSpell(){
+  if(LF.slots.includes(null))return;
+  const word=getWordById(LF.wordId);
+  const spelled=LF.slots.map(s=>s.l).join('').toLowerCase();
+  if(spelled===word.word.toLowerCase()){
+    playSuccess();
+    document.querySelectorAll('#spell-slots .spell-slot').forEach(s=>s.classList.add('correct-all'));
+    recordCorrect(word.id);
+    setTimeout(()=>showCelebration(),550);
+  }else{
+    playError();
+    const slots=document.querySelectorAll('#spell-slots .spell-slot.filled');
+    slots.forEach(s=>{s.style.animation='wfx 0.4s ease';setTimeout(()=>s.style.animation='',400);});
+    setTimeout(()=>{
+      LF.slots=Array(word.word.length).fill(null);
+      document.querySelectorAll('#spell-slots .spell-slot').forEach(s=>{s.textContent='';s.classList.remove('filled','correct-all');});
+      renderSpellTiles('spell-tiles',false);
+    },850);
+  }
+}
+
+// Celebration
+function showCelebration(){
+  const ov=document.getElementById('celebration-overlay');
+  const msgs=['太棒了！🎉','完美！✨','超厉害！🌟','继续加油！💪','你真了不起！🏆'];
+  document.getElementById('celeb-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('celeb-coins').innerHTML='';
+  ov.classList.remove('hidden');
+  spawnCoins(document.getElementById('celeb-coins'));
+}
+document.getElementById('btn-continue').addEventListener('click',()=>{
+  playClick();
+  document.getElementById('celebration-overlay').classList.add('hidden');
+  if(LF.fromMonster){renderMonsters();showScreen('monsters');}
+  else openTheme(currentThemeId);
+});
+
+// Touch drag for tiles
+function setupTileDrag(tile,ti,letter,isBoss){
+  let ghost=null,dragging=false;
+  const slotsId=isBoss?'boss-spell-slots':'spell-slots';
+  const tilesId=isBoss?'boss-spell-tiles':'spell-tiles';
+
+  function startDrag(cx,cy){
+    dragging=true;
+    ghost=document.createElement('div');ghost.className='ghost-tile';
+    ghost.textContent=letter.toUpperCase();
+    ghost.style.width=tile.offsetWidth+'px';ghost.style.height=tile.offsetHeight+'px';
+    ghost.style.fontSize=getComputedStyle(tile).fontSize;
+    document.body.appendChild(ghost);
+    moveGhost(cx,cy);
+  }
+  function moveGhost(cx,cy){
+    if(!ghost)return;
+    ghost.style.left=(cx-tile.offsetWidth/2)+'px';
+    ghost.style.top=(cy-tile.offsetHeight/2)+'px';
+  }
+  function endDrag(cx,cy){
+    if(!dragging)return;dragging=false;
+    if(ghost){ghost.remove();ghost=null;}
+    // Find element under touch point
+    const els=document.elementsFromPoint(cx,cy);
+    const slot=els.find(el=>el.classList&&el.classList.contains('spell-slot')&&!el.classList.contains('filled'));
+    if(slot){
+      const idx=parseInt(slot.dataset.idx);
+      if(!isNaN(idx)&&LF.slots[idx]===null){
+        LF.slots[idx]={ti,l:letter};
+        slot.textContent=letter.toUpperCase();slot.classList.add('filled');
+        tile.classList.add('used');tile.style.pointerEvents='none';
+        playClick();
+        if(isBoss)checkBossSpell();else checkSpell();
+      }
+    }
+  }
+  tile.addEventListener('touchstart',e=>{
+    e.preventDefault();unlockAudio();
+    if(tile.classList.contains('used'))return;
+    const t=e.touches[0];startDrag(t.clientX,t.clientY);
+  },{passive:false});
+  tile.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const t=e.touches[0];moveGhost(t.clientX,t.clientY);
+  },{passive:false});
+  tile.addEventListener('touchend',e=>{
+    e.preventDefault();
+    const t=e.changedTouches[0];endDrag(t.clientX,t.clientY);
+  },{passive:false});
+}
+
+document.getElementById('skip-btn').addEventListener('click',()=>{
+  playClick();
+  if(LF.fromMonster){renderMonsters();showScreen('monsters');}else openTheme(currentThemeId);
+});
+document.getElementById('back-from-learn').addEventListener('click',()=>{
+  playClick();
+  if(LF.fromMonster){renderMonsters();showScreen('monsters');}else openTheme(currentThemeId);
+});
+
+// ==================== MONSTERS ====================
+['nav-monsters','nav-monsters2'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('click',()=>{unlockAudio();playClick();renderMonsters();showScreen('monsters');});
+});
+['nav-map','nav-map2'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('click',()=>{unlockAudio();playClick();renderMap();showScreen('map');});
+});
+
+function renderMonsters(){
+  const monsters=getMonsterWords();
+  const grid=document.getElementById('monsters-grid');grid.innerHTML='';
+  const empty=document.getElementById('monsters-empty');
+  if(monsters.length===0){empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  const emjs=['👾','🦕','🐉','👻','🦖','👽','🤖','🦎','🐲','🎃'];
+  monsters.forEach((word,i)=>{
+    const wp=getWP(word.id);
+    const card=document.createElement('div');card.className='monster-card';
+    card.innerHTML=`<div class="monster-emoji">${emjs[i%emjs.length]}</div><div class="monster-word">${word.word}</div><div style="font-size:12px;color:rgba(255,255,255,0.55)">${word.meaning}</div><div class="monster-errors">错误 ${wp.errorCount} 次</div>`;
+    card.addEventListener('click',()=>{unlockAudio();playClick();currentThemeId=word.themeId;startLearn(word.id,1,true);});
+    grid.appendChild(card);
+  });
+}
+
+// ==================== BOSS ====================
+const BF={themeId:null,questions:[],cur:0,score:0,hearts:3,timeLeft:180,timer:null};
+
+function startBoss(tid){
+  const qs=BOSS_Q[tid];if(!qs)return;
+  BF.themeId=tid;BF.questions=[...qs].sort(()=>Math.random()-0.5);
+  BF.cur=0;BF.score=0;BF.hearts=3;BF.timeLeft=180;
+  document.getElementById('boss-result').classList.add('hidden');
+  document.getElementById('boss-q-area').classList.remove('hidden');
+  renderBossQ();showScreen('boss');startBossTimer();
+}
+function startBossTimer(){
+  if(BF.timer)clearInterval(BF.timer);
+  BF.timer=setInterval(()=>{
+    BF.timeLeft--;
+    const m=Math.floor(BF.timeLeft/60),s=BF.timeLeft%60;
+    document.getElementById('boss-timer').textContent=`⏱ ${m}:${s.toString().padStart(2,'0')}`;
+    if(BF.timeLeft<=0){clearInterval(BF.timer);endBoss(false);}
+  },1000);
+}
+
+function renderBossQ(){
+  const q=BF.questions[BF.cur];if(!q){endBoss(BF.score>=3);return;}
+  document.getElementById('boss-score').innerHTML=`得分 <span>${BF.score}</span> / ${BF.questions.length}`;
+  document.getElementById('boss-q-text').textContent=q.q;
+  // HP
+  const hp=document.getElementById('boss-hp');hp.innerHTML='';
+  for(let i=0;i<3;i++){const h=document.createElement('div');h.className='hp-heart'+(i>=BF.hearts?' lost':'');h.textContent='❤️';hp.appendChild(h);}
+  const choices=document.getElementById('boss-choices');
+  const spellArea=document.getElementById('boss-spell-area');
+  if(q.type==='pick'){
+    choices.classList.remove('hidden');spellArea.classList.add('hidden');choices.innerHTML='';
+    const all=getAllWords();
+    q.opts.forEach(id=>{
+      const w=all.find(x=>x.id===id);if(!w)return;
+      const btn=document.createElement('div');btn.className='boss-choice';
+      btn.innerHTML=`<span style="font-size:clamp(40px,10vw,54px)">${w.image}</span><span style="font-size:12px;font-weight:800">${w.meaning}</span>`;
+      btn.addEventListener('click',()=>handleBossChoice(id===q.ans,btn));
+      choices.appendChild(btn);
+    });
+  }else{
+    choices.classList.add('hidden');spellArea.classList.remove('hidden');
+    const word=getWordById(q.wid);
+    document.getElementById('boss-spell-img').textContent=word.image;
+    LF.slots=Array(word.word.length).fill(null);
+    const letters=word.word.toLowerCase().split('').map((l,i)=>({l,i}));
+    LF.shuffled=[...letters].sort(()=>Math.random()-0.5);
+    LF.wordId=q.wid;
+    renderSpellSlots(word,'boss-spell-slots');
+    renderSpellTiles('boss-spell-tiles',true);
+    setTimeout(()=>speak(word.word),500);
+  }
+}
+
+function checkBossSpell(){
+  if(LF.slots.includes(null))return;
+  const word=getWordById(BF.questions[BF.cur].wid);
+  const spelled=LF.slots.map(s=>s.l).join('').toLowerCase();
+  if(spelled===word.word.toLowerCase()){
+    handleBossChoice(true,null);
+  }else{
+    playError();
+    LF.slots=Array(word.word.length).fill(null);
+    document.querySelectorAll('#boss-spell-slots .spell-slot').forEach(s=>{s.textContent='';s.classList.remove('filled');});
+    renderSpellTiles('boss-spell-tiles',true);
+  }
+}
+
+function handleBossChoice(correct,btn){
+  if(correct){
+    if(btn){btn.style.border='3px solid #06D6A0';btn.style.background='rgba(6,214,160,0.18)';}
+    BF.score++;playSuccess();
+  }else{
+    if(btn){btn.style.opacity='0.38';}
+    BF.hearts--;playError();
+    if(BF.hearts<=0){clearInterval(BF.timer);setTimeout(()=>endBoss(false),550);return;}
+  }
+  setTimeout(()=>{BF.cur++;if(BF.cur>=BF.questions.length){clearInterval(BF.timer);endBoss(BF.score>=3);}else renderBossQ();},750);
+}
+
+function endBoss(win){
+  clearInterval(BF.timer);
+  document.getElementById('boss-q-area').classList.add('hidden');
+  document.getElementById('boss-result').classList.remove('hidden');
+  if(win){
+    playVictory();
+    if(S.themeProgress[BF.themeId])S.themeProgress[BF.themeId].bossDefeated=true;
+    unlockNext(BF.themeId);
+    const decos=['🎩','👑','🌟','🎭','🏆','🎪','🎨','💎'];
+    const dec=decos[Math.floor(Math.random()*decos.length)];
+    addDeco(dec);
+    document.getElementById('boss-result-emoji').textContent='🏆';
+    document.getElementById('boss-result-title').textContent='你赢了！';
+    document.getElementById('boss-result-desc').textContent=`得分 ${BF.score}/${BF.questions.length}！超厉害！`;
+    const rr=document.getElementById('boss-result-reward');rr.textContent=`获得装饰品 ${dec}！`;rr.classList.remove('hidden');
+    saveState();
+  }else{
+    playDefeat();
+    document.getElementById('boss-result-emoji').textContent='💪';
+    document.getElementById('boss-result-title').textContent='继续加油！';
+    document.getElementById('boss-result-desc').textContent=`得分 ${BF.score}/${BF.questions.length}，再战一次！`;
+    document.getElementById('boss-result-reward').classList.add('hidden');
+  }
+}
+document.getElementById('boss-retry').addEventListener('click',()=>{playClick();document.getElementById('boss-result').classList.add('hidden');document.getElementById('boss-q-area').classList.remove('hidden');startBoss(BF.themeId);});
+document.getElementById('boss-exit').addEventListener('click',()=>{playClick();openTheme(BF.themeId);renderMap();});
+document.getElementById('back-from-boss').addEventListener('click',()=>{clearInterval(BF.timer);playClick();openTheme(BF.themeId);});
+
+// ==================== DRESS UP ====================
+const DECOS=[
+  {id:'hat1',name:'魔法帽',emoji:'🎩',type:'hat'},{id:'crown',name:'皇冠',emoji:'👑',type:'hat'},
+  {id:'star',name:'星星',emoji:'⭐',type:'acc'},{id:'bow',name:'蝴蝶结',emoji:'🎀',type:'acc'},
+  {id:'glasses',name:'太阳镜',emoji:'😎',type:'acc'},{id:'cape',name:'斗篷',emoji:'🦸',type:'acc'},
+  {id:'trophy',name:'奖杯',emoji:'🏆',type:'acc'},{id:'diamond',name:'钻石',emoji:'💎',type:'acc'},
+  {id:'art',name:'画板',emoji:'🎨',type:'acc'},{id:'stage',name:'舞台',emoji:'🎭',type:'acc'},
+];
+
+function renderDressUp(){
+  document.getElementById('du-base').textContent=S.avatar;
+  const eq=S.equippedDecorations||[];
+  const hat=DECOS.find(d=>eq.includes(d.id)&&d.type==='hat');
+  const acc=DECOS.find(d=>eq.includes(d.id)&&d.type==='acc');
+  document.getElementById('du-hat').textContent=hat?hat.emoji:'';
+  document.getElementById('du-acc').textContent=acc?acc.emoji:'';
+  const grid=document.getElementById('dressup-grid');grid.innerHTML='';
+  DECOS.forEach(dec=>{
+    const owned=(S.decorations||[]).includes(dec.emoji)||(S.decorations||[]).includes(dec.id);
+    const equipped=eq.includes(dec.id);
+    const item=document.createElement('div');
+    item.className='deco-item'+(owned?' owned':' locked')+(equipped?' equipped':'');
+    item.innerHTML=`<div class="deco-icon">${dec.emoji}</div><div class="deco-name">${dec.name}</div><div class="deco-badge ${owned?'':'locked-badge'}">${owned?(equipped?'已装备':'拥有'):'🔒未解锁'}</div>`;
+    if(owned){item.addEventListener('click',()=>{
+      playClick();
+      const neq=equipped?eq.filter(i=>i!==dec.id):[...eq.filter(i=>{const d=DECOS.find(x=>x.id===i);return d&&d.type!==dec.type;}),dec.id];
+      S.equippedDecorations=neq;saveState();renderDressUp();
+    });}
+    grid.appendChild(item);
+  });
+}
+document.getElementById('back-from-dressup').addEventListener('click',()=>{playClick();showScreen('map');renderMap();});
+
+// ==================== PARENT REPORT ====================
+document.getElementById('parent-cancel').addEventListener('click',()=>{document.getElementById('parent-modal').classList.add('hidden');});
+document.getElementById('parent-confirm').addEventListener('click',()=>{
+  const p=document.getElementById('parent-pass').value;
+  if(p==='1234'){document.getElementById('parent-modal').classList.add('hidden');showReport();}
+  else{document.getElementById('parent-pass').style.borderColor='#FF6B6B';playError();setTimeout(()=>document.getElementById('parent-pass').style.borderColor='',1000);}
+});
+
+function showReport(){
+  showScreen('report');
+  const all=getAllWords();
+  let mastered=0,learning=0;const errs=[];
+  all.forEach(w=>{const wp=getWP(w.id);if(wp.status==='mastered')mastered++;else if(wp.status==='learning')learning++;if(wp.errorCount>0)errs.push({word:w.word,errors:wp.errorCount});});
+  errs.sort((a,b)=>b.errors-a.errors);
+  document.getElementById('rpt-name').textContent=S.nickname;
+  document.getElementById('rpt-mastered').textContent=mastered;
+  document.getElementById('rpt-total').textContent=all.length;
+  document.getElementById('rpt-learning').textContent=learning;
+  document.getElementById('rpt-time').textContent=Math.floor((S.totalTime||0)/60)+' 分钟';
+  const pct=all.length>0?Math.round(mastered/all.length*100):0;
+  document.getElementById('rpt-pct').textContent=pct+'%';
+  document.getElementById('rpt-prog').style.width=pct+'%';
+  // Daily bars
+  const db=document.getElementById('daily-bars');db.innerHTML='';
+  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0]);}
+  const maxT=Math.max(...days.map(d=>(S.dailyLogs||{})[d]||0),60);
+  days.forEach(d=>{
+    const sec=(S.dailyLogs||{})[d]||0;const pct=maxT>0?(sec/maxT*100):0;
+    const lbl=d.slice(5).replace('-','/');
+    const wrap=document.createElement('div');wrap.className='daily-bar-wrap';
+    wrap.innerHTML=`<div class="daily-bar"><div class="daily-bar-fill" style="height:${pct}%"></div></div><div class="daily-label">${lbl}</div>`;
+    db.appendChild(wrap);
+  });
+  // Errors
+  const el=document.getElementById('error-list');el.innerHTML='';
+  if(errs.length===0)el.innerHTML='<div style="text-align:center;opacity:0.5;padding:14px">暂无错词 🎉</div>';
+  else errs.slice(0,8).forEach(e=>{const row=document.createElement('div');row.className='error-word-item';row.innerHTML=`<span>${e.word}</span><span class="error-count">✗ ${e.errors}</span>`;el.appendChild(row);});
+}
+document.getElementById('back-from-report').addEventListener('click',()=>{playClick();showScreen('map');renderMap();});
+
+// ==================== INIT ====================
+(function init(){
+  initTTS();
+  // Block default scroll/zoom gestures on iOS
+  document.addEventListener('touchmove',e=>{
+    if(e.touches.length>1)e.preventDefault();
+  },{passive:false});
+  document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+
+  S=loadState();
+  if(S){
+    updateTopBar();renderMap();showScreen('map');
+  }else{
+    showScreen('splash');
+  }
+})();
+</script>
+
+</body>
+</html>
